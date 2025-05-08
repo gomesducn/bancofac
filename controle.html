@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Controle de Caixa</title>
+  <style>
+    body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-image: url(https://i.ibb.co/B2g384Wy/fundo.png);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background-color: rgba(0,0,0,0.4);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+    }
+
+    .login-box {
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.3);
+      max-width: 400px;
+      width: 90%;
+    }
+
+    .login-box h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .login-box input {
+      width: 95%;
+      padding: 10px;
+      margin-bottom: 15px;
+      font-size: 16px;
+    }
+
+    .login-box button {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    input[type="number"], input[type="text"] {
+      width: 95%;
+      padding: 10px;
+      margin: 10px 0;
+    }
+
+    button {
+      width: 48%;
+      padding: 10px;
+      margin-top: 10px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .saldo {
+      font-size: 1.2em;
+      margin-top: 20px;
+      margin-bottom: 10px;
+      padding: 8px;
+      border-radius: 6px;
+    }
+
+    .extrato {
+      margin-top: 20px;
+      border-top: 1px solid #ccc;
+      padding-top: 10px;
+    }
+
+    .movimentacao {
+      margin-bottom: 15px;
+      font-size: 0.95em;
+      padding: 12px;
+      border-radius: 8px;
+      background-color: #f1f1f1;
+    }
+
+    .deposito {
+      background-color: #d4edda;
+      border-left: 5px solid green;
+    }
+
+    .saque {
+      background-color: #f8d7da;
+      border-left: 5px solid red;
+    }
+
+    .movimentacao .tipo {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .movimentacao .valor {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .movimentacao .descricao {
+      margin-bottom: 5px;
+    }
+
+    .movimentacao .info {
+      font-size: 0.85em;
+      font-style: italic;
+      color: #555;
+    }
+
+    .flash-green {
+      animation: flash-green 0.8s ease;
+      color: green;
+    }
+
+    .flash-red {
+      animation: flash-red 0.8s ease;
+      color: red;
+    }
+
+    .login-checkbox {
+      margin-top: 10px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Tela de Login -->
+  <div id="login-overlay" class="overlay">
+    <div class="login-box">
+      <img src="https://i.ibb.co/CpQkQ8Dn/LOGO.png" alt="Descrição" style="display: block; margin: auto; width: 100px;">
+      <input type="text" id="login-nome" placeholder="Usuário" />
+      <input type="password" id="login-senha" placeholder="Senha" />
+      <div class="login-checkbox">
+        <label><input type="checkbox" id="lembrar-login" /> Salvar login e senha</label>
+      </div>
+      <button onclick="confirmarLogin()">Entrar</button>
+    </div>
+  </div>
+
+  <!-- Conteúdo principal -->
+  <div class="container">
+    <img src="https://i.ibb.co/CpQkQ8Dn/LOGO.png" alt="Descrição" style="display: block; margin: auto; width: 100px;">
+    <label for="nome">Nome do responsável:</label>
+    <input type="text" id="nome" disabled />
+
+    <label for="descricao">Descrição da operação:</label>
+    <input type="text" id="descricao" placeholder="Ex: Venda, doação, salário..." />
+
+    <label for="valor">Valor (R$):</label>
+    <input type="number" id="valor" placeholder="Digite um valor" />
+
+    <div>
+      <button onclick="depositar()">Depositar</button>
+      <button onclick="sacar()">Sacar</button>
+    </div>
+
+    <div class="saldo" id="saldo">Saldo atual: R$ 0</div>
+
+    <div class="extrato">
+      <h3>Extrato</h3>
+      <div id="extrato-lista"></div>
+    </div>
+
+    <div style="margin-top: 20px;">
+      <button style="background-color: crimson; color: white;" onclick="limparHistorico()">🧹 Limpar Histórico</button>
+    </div>
+  </div>
+
+  <script>
+    let saldo = 0;
+    let extrato = [];
+    const usuarios = {
+      "Gomes": "gomestdc2024",
+      "Agostinho": "agostinho2025"
+    };
+
+    function confirmarLogin() {
+      const nome = document.getElementById("login-nome").value.trim();
+      const senha = document.getElementById("login-senha").value.trim();
+
+      if (usuarios[nome] && usuarios[nome] === senha) {
+        if (document.getElementById("lembrar-login").checked) {
+          localStorage.setItem("login_salvo", nome);
+          localStorage.setItem("senha_salva", senha);
+        } else {
+          localStorage.removeItem("login_salvo");
+          localStorage.removeItem("senha_salva");
+        }
+
+        document.getElementById("login-overlay").style.display = "none";
+        document.getElementById("nome").value = nome;
+        localStorage.setItem("nome", nome);
+        carregarDados();
+      } else {
+        alert("Usuário ou senha inválidos.");
+      }
+    }
+
+    function preencherLoginSalvo() {
+      const nomeSalvo = localStorage.getItem("login_salvo");
+      const senhaSalva = localStorage.getItem("senha_salva");
+      if (nomeSalvo && senhaSalva) {
+        document.getElementById("login-nome").value = nomeSalvo;
+        document.getElementById("login-senha").value = senhaSalva;
+        document.getElementById("lembrar-login").checked = true;
+      }
+    }
+
+    function formatar(valor) {
+      return valor.toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      });
+    }
+
+    function atualizarSaldo() {
+      const saldoDiv = document.getElementById("saldo");
+      saldoDiv.innerText = `Saldo atual: ${formatar(saldo)}`;
+      saldoDiv.classList.remove("flash-green", "flash-red");
+      saldoDiv.classList.add(saldo > 0 ? "flash-green" : "flash-red");
+    }
+
+    function registrarExtrato(tipo, valor, nome, descricao) {
+      const data = new Date().toLocaleString('pt-BR');
+      extrato.unshift({ data, tipo, valor, nome, descricao });
+      salvarDados();
+      atualizarExtrato();
+    }
+
+    function atualizarExtrato() {
+      const lista = document.getElementById("extrato-lista");
+      lista.innerHTML = "";
+      extrato.forEach(m => {
+        const linha = document.createElement("div");
+        linha.classList.add("movimentacao", m.tipo === "Depósito" ? "deposito" : "saque");
+        linha.innerHTML = `
+          <div class="tipo">${m.tipo}</div>
+          <div class="valor">${formatar(m.valor)}</div>
+          <div class="descricao">${m.descricao}</div>
+          <div class="info">${m.nome} em ${m.data}</div>
+        `;
+        lista.appendChild(linha);
+      });
+    }
+
+    function obterNomeEDescricao() {
+      const nome = document.getElementById("nome").value.trim();
+      const descricao = document.getElementById("descricao").value.trim();
+      if (!nome || !descricao) {
+        alert("Preencha todos os campos.");
+        return null;
+      }
+      return { nome, descricao };
+    }
+
+    function depositar() {
+      const dados = obterNomeEDescricao();
+      if (!dados) return;
+      const valor = parseFloat(document.getElementById("valor").value);
+      if (valor > 0) {
+        saldo += valor;
+        atualizarSaldo();
+        registrarExtrato("Depósito", valor, dados.nome, dados.descricao);
+        alert(`Depósito de ${formatar(valor)} realizado.`);
+      } else {
+        alert("Digite um valor positivo.");
+      }
+    }
+
+    function sacar() {
+      const dados = obterNomeEDescricao();
+      if (!dados) return;
+      const valor = parseFloat(document.getElementById("valor").value);
+      if (valor > 0 && valor <= saldo) {
+        saldo -= valor;
+        atualizarSaldo();
+        registrarExtrato("Saque", valor, dados.nome, dados.descricao);
+        alert(`Saque de ${formatar(valor)} realizado.`);
+      } else {
+        alert("Valor inválido ou saldo insuficiente.");
+      }
+    }
+
+    function salvarDados() {
+      localStorage.setItem("saldo", saldo.toString());
+      localStorage.setItem("extrato", JSON.stringify(extrato));
+    }
+
+    function carregarDados() {
+      saldo = parseFloat(localStorage.getItem("saldo")) || 0;
+      extrato = JSON.parse(localStorage.getItem("extrato")) || [];
+      atualizarSaldo();
+      atualizarExtrato();
+    }
+
+    function limparHistorico() {
+      const senha = prompt("Digite a senha para limpar o histórico:");
+      if (senha === "tdc2024") {
+        if (confirm("Tem certeza que deseja apagar todo o histórico?")) {
+          localStorage.clear();
+          saldo = 0;
+          extrato = [];
+          document.getElementById("descricao").value = "";
+          document.getElementById("valor").value = "";
+          atualizarSaldo();
+          atualizarExtrato();
+          alert("Todos os dados foram apagados.");
+        }
+      } else {
+        alert("Senha incorreta.");
+      }
+    }
+
+    preencherLoginSalvo();
+  </script>
+</body>
+</html>
