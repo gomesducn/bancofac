@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Controle de Caixa</title>
+  <title>BANCO FAC</title>
   <style>
     body {
     font-family: Arial, sans-serif;
@@ -153,6 +153,24 @@
     }
   </style>
 </head>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCFx7YYsI0jS2tN3sMtOUMRaNHJSIONX6A",
+    authDomain: "bancofac-2aa1d.firebaseapp.com",
+    databaseURL: "https://bancofac-2aa1d-default-rtdb.firebaseio.com/",
+    projectId: "bancofac-2aa1d",
+    storageBucket: "bancofac-2aa1d.firebasestorage.app",
+    messagingSenderId: "255420894424",
+    appId: "1:255420894424:web:ae647ee13724792a7a1bad"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+</script>
+
 <body>
 
   <!-- Tela de Login -->
@@ -275,6 +293,18 @@
         lista.appendChild(linha);
       });
     }
+    function escutarMudancas() {
+  db.ref("controleCaixa").on("value", snapshot => {
+    const dados = snapshot.val();
+    if (dados) {
+      saldo = dados.saldo || 0;
+      extrato = dados.extrato || [];
+      atualizarSaldo();
+      atualizarExtrato();
+    }
+  });
+}
+
 
     function obterNomeEDescricao() {
       const nome = document.getElementById("nome").value.trim();
@@ -315,16 +345,26 @@
     }
 
     function salvarDados() {
-      localStorage.setItem("saldo", saldo.toString());
-      localStorage.setItem("extrato", JSON.stringify(extrato));
+  db.ref("controleCaixa").set({
+    saldo,
+    extrato
+  });
+}
+function carregarDados() {
+  db.ref("controleCaixa").once("value", snapshot => {
+    const dados = snapshot.val();
+    if (dados) {
+      saldo = dados.saldo || 0;
+      extrato = dados.extrato || [];
+    } else {
+      saldo = 0;
+      extrato = [];
     }
+    atualizarSaldo();
+    atualizarExtrato();
+  });
+}
 
-    function carregarDados() {
-      saldo = parseFloat(localStorage.getItem("saldo")) || 0;
-      extrato = JSON.parse(localStorage.getItem("extrato")) || [];
-      atualizarSaldo();
-      atualizarExtrato();
-    }
 
     function limparHistorico() {
       const senha = prompt("Digite a senha para limpar o histórico:");
