@@ -36,11 +36,6 @@
       width: 90%;
     }
 
-    .login-box h2 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
     .login-box input {
       width: 95%;
       padding: 10px;
@@ -150,6 +145,13 @@
       margin-top: 10px;
       font-size: 14px;
     }
+
+    #tempo-restante {
+      text-align: center;
+      font-weight: bold;
+      color: #444;
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 <body>
@@ -160,8 +162,7 @@
     apiKey: "AIzaSyCFx7YYsI0jS2tN3sMtOUMRaNHJSIONX6A",
     authDomain: "bancofac-2aa1d.firebaseapp.com",
     databaseURL: "https://bancofac-2aa1d-default-rtdb.firebaseio.com/",
-    projectId: "bancofac-2aa1d",
-    storageBucket: "bancofac-2aa1d.f..."
+    projectId: "bancofac-2aa1d"
   };
 
   firebase.initializeApp(firebaseConfig);
@@ -170,6 +171,7 @@
   let saldo = 0;
   let extrato = [];
   let extratoSelecionado = null;
+  let intervaloSessao;
 
   const usuarios = {
     "Gomes": "gomestdc2024",
@@ -179,6 +181,7 @@
     "Ian": "venetta2024",
     "Ramirez": "rmz2025",
     "Biel": "bielveigh25",
+    "James": "jamesblack25",
     "VitorBekker": "bgdoback24"
   };
 
@@ -195,10 +198,14 @@
         localStorage.removeItem("senha_salva");
       }
 
+      localStorage.setItem("nome", nome);
+      localStorage.setItem("ultimo_login", Date.now());
+
       document.getElementById("login-overlay").style.display = "none";
       document.getElementById("nome").value = nome;
-      localStorage.setItem("nome", nome);
+
       carregarDados();
+      iniciarContagemRegressiva();
     } else {
       alert("Usuário ou senha inválidos.");
     }
@@ -207,20 +214,48 @@
   function preencherLoginSalvo() {
     const nomeSalvo = localStorage.getItem("login_salvo");
     const senhaSalva = localStorage.getItem("senha_salva");
+
     if (nomeSalvo && senhaSalva) {
       document.getElementById("login-nome").value = nomeSalvo;
       document.getElementById("login-senha").value = senhaSalva;
       document.getElementById("lembrar-login").checked = true;
     }
+
+    const ultimoLogin = parseInt(localStorage.getItem("ultimo_login"));
+    if (ultimoLogin && (Date.now() - ultimoLogin) <= 10 * 60 * 1000) {
+      const nome = localStorage.getItem("nome");
+      document.getElementById("login-overlay").style.display = "none";
+      document.getElementById("nome").value = nome;
+      carregarDados();
+      iniciarContagemRegressiva();
+    }
+  }
+
+  function iniciarContagemRegressiva() {
+    const tempoRestante = document.getElementById("tempo-restante");
+
+    clearInterval(intervaloSessao);
+
+    intervaloSessao = setInterval(() => {
+      const ultimoLogin = parseInt(localStorage.getItem("ultimo_login"));
+      const restante = 10 * 60 * 1000 - (Date.now() - ultimoLogin);
+
+      if (restante <= 0) {
+        clearInterval(intervaloSessao);
+        localStorage.removeItem("ultimo_login");
+        document.getElementById("login-overlay").style.display = "flex";
+        tempoRestante.innerText = "";
+        return;
+      }
+
+      const minutos = Math.floor(restante / 60000);
+      const segundos = Math.floor((restante % 60000) / 1000);
+      tempoRestante.innerText = `Sessão expira em ${minutos}m ${segundos}s`;
+    }, 1000);
   }
 
   function formatar(valor) {
-    return valor.toLocaleString('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    });
+    return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0 });
   }
 
   function atualizarSaldo() {
@@ -249,7 +284,7 @@
         <div class="descricao">${m.descricao}</div>
         <div class="info">${m.nome} em ${m.data}</div>
       `;
-      linha.onclick = function() {
+      linha.onclick = function () {
         if (extratoSelecionado === index) {
           linha.classList.remove("selected");
           extratoSelecionado = null;
@@ -336,44 +371,52 @@
   preencherLoginSalvo();
 </script>
 
-  <div id="login-overlay" class="overlay">
-    <div class="login-box">
-      <img src="https://i.ibb.co/d4HfDzg3/aa542b7bbdbd147857a3df8059f7bc22.webp" alt="Descrição" style="display: block; margin: auto; width: 100px;">
-      <input type="text" id="login-nome" placeholder="Usuário" />
-      <input type="password" id="login-senha" placeholder="Senha" />
-      <div class="login-checkbox">
-        <label><input type="checkbox" id="lembrar-login" /> Salvar login e senha</label>
-      </div>
-      <button onclick="confirmarLogin()">Entrar</button>
-    </div>
-  </div>
-
-  <div class="container">
+<div id="login-overlay" class="overlay">
+  <div class="login-box">
     <img src="https://i.ibb.co/d4HfDzg3/aa542b7bbdbd147857a3df8059f7bc22.webp" alt="Descrição" style="display: block; margin: auto; width: 100px;">
-    <label for="nome">Nome do responsável:</label>
-    <input type="text" id="nome" disabled />
-
-    <label for="descricao">Descrição:</label>
-    <input type="text" id="descricao" placeholder="Ex: Venda, doação, salário..." />
-
-    <label for="valor">Valor (R$):</label>
-    <input type="number" id="valor" placeholder="Digite um valor" />
-
-    <div>
-      <button onclick="depositar()">Depositar</button>
-      <button onclick="sacar()">Sacar</button>
+    <input type="text" id="login-nome" placeholder="Usuário" />
+    <input type="password" id="login-senha" placeholder="Senha" />
+    <div class="login-checkbox">
+      <label><input type="checkbox" id="lembrar-login" /> Salvar login e senha</label>
     </div>
-
-    <div class="saldo" id="saldo">Saldo atual: R$ 0</div>
-
-    <div class="extrato">
-      <h3>Extrato</h3>
-      <div id="extrato-lista"></div>
-    </div>
-
-    <div style="margin-top: 20px;">
-      <button style="background-color: crimson; color: white;" onclick="limparHistorico()">🧹 Limpar Histórico</button>
-    </div>
+    <button onclick="confirmarLogin()">Entrar</button>
   </div>
+</div>
+
+<div class="container">
+  <img src="https://i.ibb.co/d4HfDzg3/aa542b7bbdbd147857a3df8059f7bc22.webp" alt="Descrição" style="display: block; margin: auto; width: 100px;">
+  <div id="tempo-restante"></div>
+
+  <label for="nome">Nome do responsável:</label>
+  <input type="text" id="nome" disabled />
+
+  <label for="descricao">Descrição:</label>
+  <input type="text" id="descricao" placeholder="Ex: Venda, doação, salário..." />
+
+  <label for="valor">Valor (R$):</label>
+  <input type="number" id="valor" placeholder="Digite um valor" />
+
+  <div>
+    <button onclick="depositar()">Depositar</button>
+    <button onclick="sacar()">Sacar</button>
+  </div>
+
+  <div style="margin-top: 10px; text-align: center;">
+    <a href="/relatorio.html" target="_blank">
+      <button style="width: 100%; background-color: #17a2b8; color: white;">📊 Extrato Detalhado</button>
+    </a>
+  </div>
+
+  <div class="saldo" id="saldo">Saldo atual: R$ 0</div>
+
+  <div class="extrato">
+    <h3>Extrato</h3>
+    <div id="extrato-lista"></div>
+  </div>
+
+  <div style="margin-top: 20px;">
+    <button style="background-color: crimson; color: white;" onclick="limparHistorico()">🧹 Limpar Histórico</button>
+  </div>
+</div>
 </body>
 </html>
