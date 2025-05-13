@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Controle de Baús</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body, html {
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", sans-serif;
+      background-image: url(https://i.ibb.co/yFJHFvpN/fundo.jpg);
+      background-size: cover;
+      background-position: center;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #container {
+      position: relative;
+      width: 100%;
+      max-width: 600px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      padding: 2rem;
+      z-index: 1;
+    }
+
+    h2, h3 {
+      text-align: center;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+
+    button {
+      padding: 10px 20px;
+      margin: 10px auto;
+      border-radius: 8px;
+      border: none;
+      background-color: #e40000;
+      color: white;
+      cursor: pointer;
+      display: block;
+      font-size: 1rem;
+      transition: background 0.3s ease;
+      max-width: 200px;
+      width: 100%;
+    }
+
+    button:hover {
+      background-color: #4b4b4b;
+    }
+
+    .log {
+      background: #f9f9f9;
+      border-left: 5px solid #7e0000;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .log.selected {
+      background: #ffe7e7;
+      border-left: 5px solid #e74c3c;
+    }
+
+      #login-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(10px);
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    padding: 20px;
+  }
+
+  #login-box {
+    width: 100%;
+    max-width: 360px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    padding: 2rem 1.5rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    text-align: center;
+  }
+
+  #login-box h2 {
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+  }
+
+  #login-box input {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+  }
+
+  #login-box button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 1rem;
+    border-radius: 8px;
+    border: none;
+    background-color: #e40000;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+
+  #login-box button:hover {
+    background-color: #4b4b4b;
+  }
+
+  #login-box .logo {
+    width: 80px;
+    margin-bottom: 1rem;
+  }
+
+    #logs-container {
+      max-height: 250px;
+      overflow-y: auto;
+      margin-top: 1rem;
+    }
+
+    #user-info {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #user-info span {
+      font-weight: bold;
+    
+    }
+
+    #app-section.hidden {
+      filter: blur(5px);
+      pointer-events: none;
+      user-select: none;
+    }
+
+    #bau-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 10px;
+    }
+
+    .bau-btn {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #8d8d8d;
+      background-color: #a1a1a1;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
+    }
+
+    .bau-btn.selected {
+      background-color: #741818;
+      border: 2px solid #490101;
+    }
+
+    img.logo {
+      display: block;
+      margin: 0 auto 20px auto;
+      width: 100px;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="container">
+    
+    <!-- TELA DE LOGIN -->
+    <div id="login-overlay">
+      <div id="login-box">
+        <img class="logo" src="https://i.ibb.co/d4HfDzg3/aa542b7bbdbd147857a3df8059f7bc22.webp" alt="Logo">
+        <h2>Login</h2>
+        <input id="login-username" placeholder="Usuário" /><br />
+        <input id="login-password" type="password" placeholder="Senha" /><br />
+        <button onclick="login()">Entrar</button>
+      </div>
+    </div>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <div id="app-section" class="hidden">
+      <img class="logo" src="https://i.ibb.co/d4HfDzg3/aa542b7bbdbd147857a3df8059f7bc22.webp" alt="Logo">
+      <div id="user-info">
+        <span>Bem-vindo, <span id="user-name"></span></span>
+      </div>
+      <button onclick="window.location.href = '/controle.html';">CONTROLE BANCO</button>
+      <button onclick="window.location.href = '/ranking.html';">RANKING</button>
+      <button onclick="window.location.href = '/baulogs.html';">BAÚ</button>
+
+      <h3>Ações nos Baús</h3>
+
+      <div id="bau-buttons">
+        <button type="button" class="bau-btn selected" onclick="selecionarBau('Metas')">Metas</button>
+        <button type="button" class="bau-btn" onclick="selecionarBau('BauGeral')">Baú Geral</button>
+      </div>
+
+      <select id="acao-select">
+        <option value="guardou">Guardar</option>
+        <option value="retirou">Retirar</option>
+      </select>
+      <input id="item-input" placeholder="Item" />
+      <input id="quantidade-input" type="number" placeholder="Quantidade" min="1" />
+      <button onclick="executarAcao()">Executar</button>
+
+      <h3>Logs recentes</h3>
+      <div id="logs-container"></div>
+      <button onclick="apagarSelecionados()">🗑️ Apagar Logs Selecionados</button>
+    </div>
+
+  </div>
+
+  <script>
+    const usuarios = [
+      { username: "Ramirez", password: "rmz2025" },
+      { username: "Junin", password: "sabao25" },
+      { username: "James", password: "jamesblack25" },
+      { username: "Gomes", password: "gomestdc2024" },
+      { username: "Agostinho", password: "agostinho2025" },
+      { username: "WR", password: "wr2024" },
+      { username: "Solaria", password: "susentz24" },
+      { username: "Biel", password: "bielveigh25" },
+      { username: "VitorBekker", password: "bgdoback24" },
+      { username: "Ian", password: "venetta2024" }
+    ];
+    const senhaApagar = "tdc2024";
+    const tempoSessaoMs = 5 * 60 * 1000;
+
+    let bauSelecionado = "Metas";
+    let logsSelecionados = new Set();
+
+    function salvarLogs(logs) {
+      localStorage.setItem("logs", JSON.stringify(logs));
+    }
+
+    function carregarLogs() {
+      return JSON.parse(localStorage.getItem("logs") || "[]");
+    }
+
+    function login() {
+      const user = document.getElementById("login-username").value.trim();
+      const pass = document.getElementById("login-password").value.trim();
+      const valido = usuarios.find(u => u.username === user && u.password === pass);
+
+      if (valido) {
+        sessionStorage.setItem("usuarioLogado", user);
+        sessionStorage.setItem("horaLogin", Date.now());
+        mostrarApp();
+      } else {
+        alert("Usuário ou senha incorretos.");
+      }
+    }
+
+    function logout() {
+      sessionStorage.clear();
+      location.reload();
+    }
+
+    function mostrarApp() {
+      const usuario = sessionStorage.getItem("usuarioLogado");
+      if (!usuario) return;
+
+      document.getElementById("user-name").textContent = usuario;
+      document.getElementById("app-section").classList.remove("hidden");
+      const overlay = document.getElementById("login-overlay");
+      if (overlay) overlay.remove();
+      atualizarLogs();
+
+      setInterval(() => {
+        const horaLogin = parseInt(sessionStorage.getItem("horaLogin"));
+        if (Date.now() - horaLogin > tempoSessaoMs) {
+          alert("Sessão expirada. Faça login novamente.");
+          logout();
+        }
+      }, 10000);
+    }
+
+    function selecionarBau(bau) {
+      bauSelecionado = bau;
+      document.querySelectorAll(".bau-btn").forEach(btn => {
+        btn.classList.remove("selected");
+        if ((bau === "Metas" && btn.textContent === "Metas") || (bau === "BauGeral" && btn.textContent === "Baú Geral")) {
+          btn.classList.add("selected");
+        }
+      });
+    }
+
+    function executarAcao() {
+      const usuario = sessionStorage.getItem("usuarioLogado");
+      const acao = document.getElementById("acao-select").value;
+      const item = document.getElementById("item-input").value.trim();
+      const qtd = parseInt(document.getElementById("quantidade-input").value.trim());
+
+      if (!item || isNaN(qtd) || qtd <= 0) {
+        alert("Preencha item e quantidade válida.");
+        return;
+      }
+
+      const logs = carregarLogs();
+      logs.unshift({
+        id: Date.now(),
+        usuario,
+        bau: bauSelecionado,
+        acao,
+        item,
+        quantidade: qtd,
+        data: new Date().toLocaleString()
+      });
+      salvarLogs(logs);
+      document.getElementById("item-input").value = "";
+      document.getElementById("quantidade-input").value = "";
+      atualizarLogs();
+    }
+
+    function atualizarLogs() {
+      const logs = carregarLogs();
+      const container = document.getElementById("logs-container");
+      container.innerHTML = "";
+      logs.slice(0, 50).forEach(log => {
+        const div = document.createElement("div");
+        div.className = "log";
+        if (logsSelecionados.has(log.id)) div.classList.add("selected");
+        div.onclick = () => {
+          if (logsSelecionados.has(log.id)) {
+            logsSelecionados.delete(log.id);
+            div.classList.remove("selected");
+          } else {
+            logsSelecionados.add(log.id);
+            div.classList.add("selected");
+          }
+        };
+        div.innerHTML = `
+          <b>${log.usuario}</b> ${log.acao} <i>${log.quantidade}x ${log.item}</i> no <b>${log.bau}</b><br>
+          <small>${log.data}</small>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function apagarSelecionados() {
+      if (logsSelecionados.size === 0) {
+        alert("Nenhum log selecionado.");
+        return;
+      }
+
+      const senha = prompt("Digite a senha para apagar os logs selecionados:");
+      if (senha !== senhaApagar) {
+        alert("Senha incorreta.");
+        return;
+      }
+
+      const logs = carregarLogs().filter(log => !logsSelecionados.has(log.id));
+      salvarLogs(logs);
+      logsSelecionados.clear();
+      atualizarLogs();
+    }
+
+    window.onload = () => {
+      const usuario = sessionStorage.getItem("usuarioLogado");
+      const horaLogin = parseInt(sessionStorage.getItem("horaLogin"));
+
+      if (usuario && horaLogin && (Date.now() - horaLogin <= tempoSessaoMs)) {
+        mostrarApp();
+      } else {
+        sessionStorage.clear();
+      }
+    };
+  </script>
+
+</body>
+</html>

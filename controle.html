@@ -9,6 +9,8 @@
       margin: 0;
       padding: 0;
       background-image: url(https://i.ibb.co/yFJHFvpN/fundo.jpg);
+      background-size: cover;
+      background-position: center;
       min-height: 100vh;
       display: flex;
       align-items: center;
@@ -21,6 +23,7 @@
       top: 0; left: 0;
       width: 100%; height: 100%;
       background-color: rgba(0,0,0,0.4);
+      backdrop-filter: blur(6px); /* DESFOQUE APLICADO */
       display: flex;
       justify-content: center;
       align-items: center;
@@ -39,7 +42,6 @@
     .login-box input {
       width: 95%;
       padding: 10px;
-      margin-bottom: 15px;
       font-size: 16px;
     }
 
@@ -152,6 +154,40 @@
       color: #444;
       margin-bottom: 10px;
     }
+
+    button1 {
+      text-align: center;
+      padding: 10px 20px;
+      margin: 10px auto;
+      border-radius: 8px;
+      border: none;
+      background-color: #e40000;
+      color: white;
+      cursor: pointer;
+      display: block;
+      font-size: 1rem;
+      transition: background 0.3s ease;
+      max-width: 200px;
+      width: 100%;
+    }
+
+    #user-info {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #user-info span {
+      font-weight: bold;
+    }
+    body.blur-fundo::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  backdrop-filter: blur(6px);
+  z-index: 998;
+}
   </style>
 </head>
 <body>
@@ -202,6 +238,7 @@
       localStorage.setItem("ultimo_login", Date.now());
 
       document.getElementById("login-overlay").style.display = "none";
+      document.body.classList.remove("blur-fundo");
       document.getElementById("nome").value = nome;
 
       carregarDados();
@@ -224,7 +261,9 @@
     const ultimoLogin = parseInt(localStorage.getItem("ultimo_login"));
     if (ultimoLogin && (Date.now() - ultimoLogin) <= 10 * 60 * 1000) {
       const nome = localStorage.getItem("nome");
-      document.getElementById("login-overlay").style.display = "none";
+      document.getElementById("login-overlay").style.display = "flex";
+      document.body.classList.remove("blur-fundo");
+} else {
       document.getElementById("nome").value = nome;
       carregarDados();
       iniciarContagemRegressiva();
@@ -360,6 +399,8 @@
       alert("Saldo insuficiente para saque.");
       return;
     }
+          document.getElementById("user-name").textContent = usuario;
+      document.getElementById("app-section").classList.remove("hidden");
 
     saldo -= valor;
     registrarExtrato("Saque", valor, nome, descricao || "Sem descrição");
@@ -374,6 +415,7 @@
 <div id="login-overlay" class="overlay">
   <div class="login-box">
     <img src="https://i.ibb.co/d4HfDzg3/aa542b7bbdbd147857a3df8059f7bc22.webp" alt="Descrição" style="display: block; margin: auto; width: 100px;">
+<h2 style="text-align: center;">Login</h2>
     <input type="text" id="login-nome" placeholder="Usuário" />
     <input type="password" id="login-senha" placeholder="Senha" />
     <div class="login-checkbox">
@@ -382,9 +424,15 @@
     <button onclick="confirmarLogin()">Entrar</button>
   </div>
 </div>
-
 <div class="container">
   <img src="https://i.ibb.co/d4HfDzg3/aa542b7bbdbd147857a3df8059f7bc22.webp" alt="Descrição" style="display: block; margin: auto; width: 100px;">
+      <div id="app-section" class="hidden">
+      <div id="user-info">
+        <span>Bem-vindo, <span id="name"></span></span>
+      </div>
+      <button1 onclick="window.location.href = '/controle.html';">CONTROLE BANCO</button1>
+      <button1 onclick="window.location.href = '/ranking.html';">RANKING</button1>
+      <button1 onclick="window.location.href = '/baulogs.html';">BAU</button1>
   <div id="tempo-restante"></div>
 
   <label for="nome">Nome do responsável:</label>

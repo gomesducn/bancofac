@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Ranking Semanal - Facção</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-image: url(https://i.ibb.co/yFJHFvpN/fundo.jpg);
+      color: #f5f5f5;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 900px;
+      margin: 30px auto;
+      padding: 20px;
+    background: #fff;
+      border-radius: 10px;
+    }
+    h2, h3 {
+      text-align: center;
+      color: #000000;
+    }
+    form, table {
+      margin-top: 20px;
+    }
+    input, button {
+      padding: 8px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+    }
+    input[type="number"], input[type="text"] {
+      width: 100px;
+    }
+    .login, .admin-panel, #painel {
+      max-width: 400px;
+      margin: 20px auto;
+      background: #797979;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      color:#000000;
+      padding: 10px;
+      border-bottom: 1px solid #000000;
+      text-align: left;
+      word-wrap: break-word;
+    }
+    th {
+      background-color: #af0000;
+      color: #ffffff;
+    }
+    .hidden {
+      display: none;
+    }
+    .reset-btn {
+      background-color: #ff4444;
+      color: white;
+      cursor: pointer;
+    }
+    #countdown {
+      font-size: 1.5em;
+      text-align: center;
+      color: #ffcc00;
+      margin-top: 20px;
+    }
+    .reminder {
+      color: #ff4444;
+      font-size: 1.2em;
+      margin-top: 10px;
+      text-align: center;
+    }
+    
+    button1 {
+      text-align: center;
+      padding: 10px 20px;
+      margin: 10px auto;
+      border-radius: 8px;
+      border: none;
+      background-color: #e40000;
+      color: white;
+      cursor: pointer;
+      display: block;
+      font-size: 1rem;
+      transition: background 0.3s ease;
+      max-width: 200px;
+      width: 100%;
+    }
+    
+    #user-info {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color:#000000;
+    }
+
+    #user-info span {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body onload="carregarDados()">
+  <div class="container">
+    <!-- Cabeçalho e botões -->
+    <img src="https://i.ibb.co/d4HfDzg3/aa542b7bbdbd147857a3df8059f7bc22.webp" alt="Descrição" style="display: block; margin: auto; width: 100px;">
+    <div id="user-info">
+      <span>Bem-vindo, <span id="user-name"></span></span>
+    </div>
+    <button1 onclick="window.location.href = '/controle.html';">CONTROLE BANCO</button1>
+    <button1 onclick="window.location.href = '/ranking.html';">RANKING</button1>
+    <button1 onclick="window.location.href = '/baulogs.html';">BAU</button1>
+    <h2>🏆 Ranking Semanal - Facção</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Dias Farm</th>
+          <th>Dias Seringas</th>
+          <th>Total de Pontos</th>
+          <th>Histórico</th>
+        </tr>
+      </thead>
+      <tbody id="rankingBody"></tbody>
+    </table>
+
+    <div class="admin-panel">
+      <button onclick="document.getElementById('login').classList.toggle('hidden')">Administração 🔐</button>
+    </div>
+    <div id="countdown"></div>
+  </div>
+
+  <div id="login" class="login hidden">
+    <h3>Login do Admin</h3>
+    <form onsubmit="event.preventDefault(); validarLogin();">
+      <input type="text" id="user" placeholder="Usuário"><br>
+      <input type="password" id="pass" placeholder="Senha"><br>
+      <button type="submit">Entrar</button>
+    </form>
+  </div>
+
+  <div id="painel" class="hidden">
+    <div class="reminder">🚨 Lembre-se de inserir os pontos antes da meia-noite!</div>
+    <h3>Cadastrar/Atualizar Jogador</h3>
+    <form onsubmit="adicionarOuAtualizarPlayer(event)">
+      <input type="text" id="nome" placeholder="Nome do player" required>
+      <input type="number" id="diasFarm" placeholder="Dias de Farm (1 pt)" min="0">
+      <input type="number" id="diasSeringa" placeholder="Dias de Seringa (3 pt)" min="0">
+      <button type="submit">Salvar</button>
+    </form>
+    <button class="reset-btn" onclick="resetarRanking()">🔁 Resetar Ranking Semanal</button>
+    <button onclick="resetarContagemRegressiva()">⛔ Resetar Contagem</button>
+    <form onsubmit="event.preventDefault(); removerPlayer();">
+      <h3>Remover Jogador/Pontos</h3>
+      <input type="text" id="removerNome" placeholder="Nome para remover pontuação">
+      <button type="submit">❌ Remover</button>
+    </form>
+  </div>
+
+  <script>
+    const LOGIN_USER = "admin";
+    const LOGIN_PASS = "1234";
+
+    function validarLogin() {
+      const u = document.getElementById("user").value;
+      const p = document.getElementById("pass").value;
+      if (u === LOGIN_USER && p === LOGIN_PASS) {
+        document.getElementById("login").classList.add("hidden");
+        document.getElementById("painel").classList.remove("hidden");
+      } else {
+        alert("Login ou senha inválidos");
+      }
+    }
+
+    function iniciarContagemRegressiva(manual = false) {
+      let tempoLimite;
+      if (manual) {
+        tempoLimite = new Date().getTime() + (7 * 24 * 60 * 60 * 1000);
+        localStorage.setItem("tempoLimiteRanking", tempoLimite);
+      } else {
+        tempoLimite = parseInt(localStorage.getItem("tempoLimiteRanking"));
+        if (!tempoLimite) return;
+      }
+
+      setInterval(function () {
+        const agora = new Date().getTime();
+        const distancia = tempoLimite - agora;
+
+        if (distancia <= 0) {
+          document.getElementById("countdown").innerText = "Ranking encerrado!";
+          return;
+        }
+
+        const dias = Math.floor(distancia / (1000 * 60 * 60 * 24));
+        const horas = Math.floor((distancia % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutos = Math.floor((distancia % (1000 * 60 * 60)) / (1000 * 60));
+        const segundos = Math.floor((distancia % (1000 * 60)) / 1000);
+
+        document.getElementById("countdown").innerText = `⏳ Tempo restante do ranking: ${dias}d ${horas}h ${minutos}m ${segundos}s`;
+      }, 1000);
+    }
+
+    function resetarContagemRegressiva() {
+      if (confirm("Deseja resetar a contagem regressiva?")) {
+        localStorage.removeItem("tempoLimiteRanking");
+        document.getElementById("countdown").innerText = "";
+      }
+    }
+
+    function adicionarOuAtualizarPlayer(e) {
+      e.preventDefault();
+      const nome = document.getElementById("nome").value.trim();
+      const diasFarm = parseInt(document.getElementById("diasFarm").value) || 0;
+      const diasSeringa = parseInt(document.getElementById("diasSeringa").value) || 0;
+      const pontos = diasFarm * 1 + diasSeringa * 3;
+      const hoje = new Date().toLocaleDateString("pt-BR");
+
+      let ranking = JSON.parse(localStorage.getItem("ranking")) || [];
+      const index = ranking.findIndex(p => p.nome.toLowerCase() === nome.toLowerCase());
+
+      const historicoDia = { data: hoje, diasFarm, diasSeringa, pontos };
+
+      if (index >= 0) {
+        const player = ranking[index];
+        player.diasFarm += diasFarm;
+        player.diasSeringa += diasSeringa;
+        player.pontos += pontos;
+        player.historico = player.historico || [];
+        player.historico.push(historicoDia);
+      } else {
+        ranking.push({ nome, diasFarm, diasSeringa, pontos, historico: [historicoDia] });
+      }
+
+      localStorage.setItem("ranking", JSON.stringify(ranking));
+      atualizarTabela();
+
+      document.getElementById("nome").value = "";
+      document.getElementById("diasFarm").value = "";
+      document.getElementById("diasSeringa").value = "";
+    }
+
+    function removerPlayer() {
+      const nome = document.getElementById("removerNome").value.trim();
+      if (!nome) return;
+      let ranking = JSON.parse(localStorage.getItem("ranking")) || [];
+      ranking = ranking.filter(p => p.nome.toLowerCase() !== nome.toLowerCase());
+      localStorage.setItem("ranking", JSON.stringify(ranking));
+      atualizarTabela();
+      document.getElementById("removerNome").value = "";
+    }
+
+    function carregarDados() {
+      atualizarTabela();
+      iniciarContagemRegressiva();
+    }
+
+    function atualizarTabela() {
+      let ranking = JSON.parse(localStorage.getItem("ranking")) || [];
+      ranking.sort((a, b) => b.pontos - a.pontos);
+
+      const tbody = document.getElementById("rankingBody");
+      tbody.innerHTML = "";
+
+      ranking.forEach((p, index) => {
+        let medalha = "";
+        if (index === 0) medalha = "🥇 ";
+        else if (index === 1) medalha = "🥈 ";
+        else if (index === 2) medalha = "🥉 ";
+
+        const historico = p.historico?.map(h => `${h.data}: +${h.pontos}pts`).join("<br>") || "-";
+
+        const row = `
+          <tr>
+            <td>${medalha}${p.nome}</td>
+            <td>${p.diasFarm}</td>
+            <td>${p.diasSeringa}</td>
+            <td>${p.pontos}</td>
+            <td>${historico}</td>
+          </tr>
+        `;
+        tbody.innerHTML += row;
+      });
+    }
+
+    function resetarRanking() {
+      if (confirm("Tem certeza que deseja resetar o ranking semanal?")) {
+        localStorage.removeItem("ranking");
+        localStorage.removeItem("tempoLimiteRanking");
+        atualizarTabela();
+        document.getElementById("countdown").innerText = "";
+      }
+    }
+  </script>
+</body>
+</html>
