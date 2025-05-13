@@ -134,7 +134,7 @@
 
   <div id="login" class="login hidden">
     <h3>Login do Admin</h3>
-    <form onsubmit="event.preventDefault(); validarLogin();">
+    <form id="adminForm">
       <input type="text" id="user" placeholder="Usuário"><br>
       <input type="password" id="pass" placeholder="Senha"><br>
       <button type="submit">Entrar</button>
@@ -168,7 +168,7 @@
       projectId: "ranking-7d2c1",
       storageBucket: "ranking-7d2c1.firebasestorage.app",
       messagingSenderId: "90939164247",
-      appId: "1:90939164247:web:135250fb919318fd3f4512"
+      appId: "1:90939164247:web:135250fb919318fd3f4512",
       measurementId: "G-48TGM4K8D6"
     };
 
@@ -178,16 +178,25 @@
     const LOGIN_USER = "admin";
     const LOGIN_PASS = "1234";
 
+    // Função de login
     function validarLogin() {
       const u = document.getElementById("user").value;
       const p = document.getElementById("pass").value;
       if (u === LOGIN_USER && p === LOGIN_PASS) {
         document.getElementById("login").classList.add("hidden");
         document.getElementById("painel").classList.remove("hidden");
+        document.getElementById("user").value = "";
+        document.getElementById("pass").value = "";
       } else {
         alert("Login ou senha inválidos");
       }
     }
+
+    // Listener do formulário de login
+    document.getElementById("adminForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      validarLogin();
+    });
 
     async function adicionarOuAtualizarPlayer(event) {
       event.preventDefault();
@@ -231,6 +240,15 @@
       atualizarTabela();
     }
 
+    async function resetarRanking() {
+      if (!confirm("Tem certeza que deseja resetar o ranking semanal? Essa ação é irreversível.")) return;
+      const col = await getDocs(collection(db, "ranking"));
+      col.forEach(async docu => {
+        await deleteDoc(doc(db, "ranking", docu.id));
+      });
+      atualizarTabela();
+    }
+
     async function atualizarTabela() {
       const col = collection(db, "ranking");
       const snapshot = await getDocs(col);
@@ -242,18 +260,44 @@
       tbody.innerHTML = "";
       ranking.forEach((p, index) => {
         let medalha = index === 0 ? "🥇 " : index === 1 ? "🥈 " : index === 2 ? "🥉 " : "";
-        const historico = p.historico?.map(h => `${h.data}: +${h.pontos}pts`).join("<br>") || "-";
+        const historico = p.historico?.map(h => `<li>${h.data}: +${h.pontos} pts</li>`).join("") || "-";
         tbody.innerHTML += `
           <tr>
             <td>${medalha}${p.nome}</td>
             <td>${p.diasFarm}</td>
             <td>${p.diasSeringa}</td>
             <td>${p.pontos}</td>
-            <td>${historico}</td>
+            <td><ul>${historico}</ul></td>
           </tr>`;
       });
     }
 
+    function iniciarContagem() {
+      const agora = new Date();
+      const dia = agora.getDay();
+      const diff = 7 - dia;
+      const proximoDomingo = new Date();
+      proximoDomingo.setDate(agora.getDate() + diff);
+      proximoDomingo.setHours(23, 59, 59, 999);
+
+      function atualizar() {
+        const agora = new Date();
+        const restante = proximoDomingo - agora;
+        if (restante <= 0) {
+          document.getElementById("countdown").textContent = "🏁 Fim do Ranking Semanal!";
+          return;
+        }
+        const dias = Math.floor(restante / (1000 * 60 * 60 * 24));
+        const horas = Math.floor((restante / (1000 * 60 * 60)) % 24);
+        const minutos = Math.floor((restante / (1000 * 60)) % 60);
+        const segundos = Math.floor((restante / 1000) % 60);
+        document.getElementById("countdown").textContent = `⏳ Tempo restante: ${dias}d ${horas}h ${minutos}m ${segundos}s`;
+      }
+
+      setInterval(atualizar, 1000);
+    }
+
+    iniciarContagem();
     atualizarTabela();
   </script>
 </body>
