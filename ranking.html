@@ -15,15 +15,12 @@
       max-width: 900px;
       margin: 30px auto;
       padding: 20px;
-    background: #fff;
+      background: #fff;
       border-radius: 10px;
     }
     h2, h3 {
       text-align: center;
       color: #000000;
-    }
-    form, table {
-      margin-top: 20px;
     }
     input, button {
       padding: 8px;
@@ -52,7 +49,6 @@
       padding: 10px;
       border-bottom: 1px solid #000000;
       text-align: left;
-      word-wrap: break-word;
     }
     th {
       background-color: #af0000;
@@ -78,34 +74,6 @@
       margin-top: 10px;
       text-align: center;
     }
-    
-    button1 {
-      text-align: center;
-      padding: 10px 20px;
-      margin: 10px auto;
-      border-radius: 8px;
-      border: none;
-      background-color: #e40000;
-      color: white;
-      cursor: pointer;
-      display: block;
-      font-size: 1rem;
-      transition: background 0.3s ease;
-      max-width: 200px;
-      width: 100%;
-    }
-    
-    #user-info {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color:#000000;
-    }
-
-    #user-info span {
-      font-weight: bold;
-    }
-    
     .button1 {
       padding: 10px 20px;
       margin: 10px auto;
@@ -120,22 +88,30 @@
       max-width: 200px;
       width: 100%;
     }
-
+    #user-info {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color:#000000;
+    }
+    #user-info span {
+      font-weight: bold;
+    }
     button:hover {
       background-color: #4b4b4b;
     }
   </style>
 </head>
-<body onload="carregarDados()">
+<body>
   <div class="container">
-    <!-- Cabeçalho e botões -->
-    <img src="https://i.ibb.co/d4HfDzg3/aa542b7bbdbd147857a3df8059f7bc22.webp" alt="Descrição" style="display: block; margin: auto; width: 100px;">
+    <img src="https://i.ibb.co/d4HfDzg3/aa542b7bbdbd147857a3df8059f7bc22.webp" alt="Logo" style="display: block; margin: auto; width: 100px;">
     <div id="user-info">
-      <span>Bem-vindo, <span id="user-name"></span></span>
+      <span>Bem-vindo, <span id="user-name">Usuário</span></span>
     </div>
-      <button1 onclick="window.location.href = 'https://gomesducn.github.io/bancofac/controle.html';">CONTROLE BANCO</button1>
-      <button1 onclick="window.location.href = 'https://gomesducn.github.io/bancofac/ranking.html';">RANKING</button1>
-      <button1 onclick="window.location.href = 'https://gomesducn.github.io/bancofac/baulogs.html';">BAÚ</button1>
+    <button class="button1" onclick="window.location.href = 'https://gomesducn.github.io/bancofac/controle.html';">CONTROLE BANCO</button>
+    <button class="button1" onclick="window.location.href = 'https://gomesducn.github.io/bancofac/ranking.html';">RANKING</button>
+    <button class="button1" onclick="window.location.href = 'https://gomesducn.github.io/bancofac/baulogs.html';">BAÚ</button>
+
     <h2>🏆 Ranking Semanal - Facção</h2>
     <table>
       <thead>
@@ -175,15 +151,29 @@
       <button type="submit">Salvar</button>
     </form>
     <button class="reset-btn" onclick="resetarRanking()">🔁 Resetar Ranking Semanal</button>
-    <button onclick="resetarContagemRegressiva()">⛔ Resetar Contagem</button>
     <form onsubmit="event.preventDefault(); removerPlayer();">
-      <h3>Remover Jogador/Pontos</h3>
-      <input type="text" id="removerNome" placeholder="Nome para remover pontuação">
+      <h3>Remover Jogador</h3>
+      <input type="text" id="removerNome" placeholder="Nome para remover">
       <button type="submit">❌ Remover</button>
     </form>
   </div>
 
-  <script>
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+    import { getFirestore, doc, setDoc, getDoc, collection, getDocs, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+    const firebaseConfig = {
+      apiKey: "SUA_API_KEY",
+      authDomain: "SEU_DOMINIO.firebaseapp.com",
+      projectId: "SEU_PROJECT_ID",
+      storageBucket: "SEU_BUCKET.appspot.com",
+      messagingSenderId: "SEU_SENDER_ID",
+      appId: "SEU_APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
     const LOGIN_USER = "admin";
     const LOGIN_PASS = "1234";
 
@@ -198,124 +188,72 @@
       }
     }
 
-    function iniciarContagemRegressiva(manual = false) {
-      let tempoLimite;
-      if (manual) {
-        tempoLimite = new Date().getTime() + (7 * 24 * 60 * 60 * 1000);
-        localStorage.setItem("tempoLimiteRanking", tempoLimite);
-      } else {
-        tempoLimite = parseInt(localStorage.getItem("tempoLimiteRanking"));
-        if (!tempoLimite) return;
-      }
-
-      setInterval(function () {
-        const agora = new Date().getTime();
-        const distancia = tempoLimite - agora;
-
-        if (distancia <= 0) {
-          document.getElementById("countdown").innerText = "Ranking encerrado!";
-          return;
-        }
-
-        const dias = Math.floor(distancia / (1000 * 60 * 60 * 24));
-        const horas = Math.floor((distancia % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutos = Math.floor((distancia % (1000 * 60 * 60)) / (1000 * 60));
-        const segundos = Math.floor((distancia % (1000 * 60)) / 1000);
-
-        document.getElementById("countdown").innerText = `⏳ Tempo restante do ranking: ${dias}d ${horas}h ${minutos}m ${segundos}s`;
-      }, 1000);
-    }
-
-    function resetarContagemRegressiva() {
-      if (confirm("Deseja resetar a contagem regressiva?")) {
-        localStorage.removeItem("tempoLimiteRanking");
-        document.getElementById("countdown").innerText = "";
-      }
-    }
-
-    function adicionarOuAtualizarPlayer(e) {
-      e.preventDefault();
+    async function adicionarOuAtualizarPlayer(event) {
+      event.preventDefault();
       const nome = document.getElementById("nome").value.trim();
       const diasFarm = parseInt(document.getElementById("diasFarm").value) || 0;
       const diasSeringa = parseInt(document.getElementById("diasSeringa").value) || 0;
-      const pontos = diasFarm * 1 + diasSeringa * 3;
+      const pontos = diasFarm + diasSeringa * 3;
       const hoje = new Date().toLocaleDateString("pt-BR");
 
-      let ranking = JSON.parse(localStorage.getItem("ranking")) || [];
-      const index = ranking.findIndex(p => p.nome.toLowerCase() === nome.toLowerCase());
+      const ref = doc(db, "ranking", nome.toLowerCase());
+      const snapshot = await getDoc(ref);
 
-      const historicoDia = { data: hoje, diasFarm, diasSeringa, pontos };
-
-      if (index >= 0) {
-        const player = ranking[index];
-        player.diasFarm += diasFarm;
-        player.diasSeringa += diasSeringa;
-        player.pontos += pontos;
-        player.historico = player.historico || [];
-        player.historico.push(historicoDia);
+      if (snapshot.exists()) {
+        const data = snapshot.data();
+        await setDoc(ref, {
+          nome,
+          diasFarm: data.diasFarm + diasFarm,
+          diasSeringa: data.diasSeringa + diasSeringa,
+          pontos: data.pontos + pontos,
+          historico: [...(data.historico || []), { data: hoje, diasFarm, diasSeringa, pontos }]
+        });
       } else {
-        ranking.push({ nome, diasFarm, diasSeringa, pontos, historico: [historicoDia] });
+        await setDoc(ref, {
+          nome,
+          diasFarm,
+          diasSeringa,
+          pontos,
+          historico: [{ data: hoje, diasFarm, diasSeringa, pontos }]
+        });
       }
-
-      localStorage.setItem("ranking", JSON.stringify(ranking));
       atualizarTabela();
-
       document.getElementById("nome").value = "";
       document.getElementById("diasFarm").value = "";
       document.getElementById("diasSeringa").value = "";
     }
 
-    function removerPlayer() {
+    async function removerPlayer() {
       const nome = document.getElementById("removerNome").value.trim();
       if (!nome) return;
-      let ranking = JSON.parse(localStorage.getItem("ranking")) || [];
-      ranking = ranking.filter(p => p.nome.toLowerCase() !== nome.toLowerCase());
-      localStorage.setItem("ranking", JSON.stringify(ranking));
+      await deleteDoc(doc(db, "ranking", nome.toLowerCase()));
       atualizarTabela();
-      document.getElementById("removerNome").value = "";
     }
 
-    function carregarDados() {
-      atualizarTabela();
-      iniciarContagemRegressiva();
-    }
-
-    function atualizarTabela() {
-      let ranking = JSON.parse(localStorage.getItem("ranking")) || [];
+    async function atualizarTabela() {
+      const col = collection(db, "ranking");
+      const snapshot = await getDocs(col);
+      const ranking = [];
+      snapshot.forEach(doc => ranking.push(doc.data()));
       ranking.sort((a, b) => b.pontos - a.pontos);
 
       const tbody = document.getElementById("rankingBody");
       tbody.innerHTML = "";
-
       ranking.forEach((p, index) => {
-        let medalha = "";
-        if (index === 0) medalha = "🥇 ";
-        else if (index === 1) medalha = "🥈 ";
-        else if (index === 2) medalha = "🥉 ";
-
+        let medalha = index === 0 ? "🥇 " : index === 1 ? "🥈 " : index === 2 ? "🥉 " : "";
         const historico = p.historico?.map(h => `${h.data}: +${h.pontos}pts`).join("<br>") || "-";
-
-        const row = `
+        tbody.innerHTML += `
           <tr>
             <td>${medalha}${p.nome}</td>
             <td>${p.diasFarm}</td>
             <td>${p.diasSeringa}</td>
             <td>${p.pontos}</td>
             <td>${historico}</td>
-          </tr>
-        `;
-        tbody.innerHTML += row;
+          </tr>`;
       });
     }
 
-    function resetarRanking() {
-      if (confirm("Tem certeza que deseja resetar o ranking semanal?")) {
-        localStorage.removeItem("ranking");
-        localStorage.removeItem("tempoLimiteRanking");
-        atualizarTabela();
-        document.getElementById("countdown").innerText = "";
-      }
-    }
+    atualizarTabela();
   </script>
 </body>
 </html>
