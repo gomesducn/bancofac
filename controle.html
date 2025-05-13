@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>Controle - Banco Fac</title>
   <style>
+    /* (estilos preservados, sem mudanças) */
     body {
       font-family: Arial, sans-serif;
       margin: 0;
@@ -23,7 +24,7 @@
       top: 0; left: 0;
       width: 100%; height: 100%;
       background-color: rgba(0,0,0,0.4);
-      backdrop-filter: blur(6px); /* DESFOQUE APLICADO */
+      backdrop-filter: blur(6px);
       display: flex;
       justify-content: center;
       align-items: center;
@@ -180,20 +181,23 @@
     #user-info span {
       font-weight: bold;
     }
+
     body.blur-fundo::before {
-  content: "";
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  backdrop-filter: blur(6px);
-  z-index: 998;
-}
-.button:hover {
-background-color: #4b4b4b;
+      content: "";
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      backdrop-filter: blur(6px);
+      z-index: 998;
+    }
+
+    .button:hover {
+      background-color: #4b4b4b;
     }
   </style>
 </head>
 <body>
+
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 <script>
@@ -264,18 +268,17 @@ background-color: #4b4b4b;
     const ultimoLogin = parseInt(localStorage.getItem("ultimo_login"));
     if (ultimoLogin && (Date.now() - ultimoLogin) <= 10 * 60 * 1000) {
       const nome = localStorage.getItem("nome");
-      document.getElementById("login-overlay").style.display = "flex";
-      document.body.classList.remove("blur-fundo");
-} else {
+      document.getElementById("login-overlay").style.display = "none";
       document.getElementById("nome").value = nome;
       carregarDados();
       iniciarContagemRegressiva();
+    } else {
+      document.getElementById("login-overlay").style.display = "flex";
     }
   }
 
   function iniciarContagemRegressiva() {
     const tempoRestante = document.getElementById("tempo-restante");
-
     clearInterval(intervaloSessao);
 
     intervaloSessao = setInterval(() => {
@@ -314,31 +317,33 @@ background-color: #4b4b4b;
     atualizarExtrato();
   }
 
-  function atualizarExtrato() {
-    const lista = document.getElementById("extrato-lista");
-    lista.innerHTML = "";
-    extrato.forEach((m, index) => {
-      const linha = document.createElement("div");
-      linha.classList.add("movimentacao", m.tipo === "Depósito" ? "deposito" : "saque");
-      linha.innerHTML = `
-        <div class="tipo">${m.tipo}</div>
-        <div class="valor">${formatar(m.valor)}</div>
-        <div class="descricao">${m.descricao}</div>
-        <div class="info">${m.nome} em ${m.data}</div>
-      `;
-      linha.onclick = function () {
-        if (extratoSelecionado === index) {
-          linha.classList.remove("selected");
-          extratoSelecionado = null;
-        } else {
-          document.querySelectorAll(".movimentacao").forEach(item => item.classList.remove("selected"));
-          linha.classList.add("selected");
-          extratoSelecionado = index;
-        }
-      };
-      lista.appendChild(linha);
-    });
-  }
+function atualizarExtrato() {
+  const lista = document.getElementById("extrato-lista");
+  lista.innerHTML = "";
+
+  // Mostra apenas os 10 primeiros itens
+  extrato.slice(0, 5).forEach((m, index) => {
+    const linha = document.createElement("div");
+    linha.classList.add("movimentacao", m.tipo === "Depósito" ? "deposito" : "saque");
+    linha.innerHTML = `
+      <div class="tipo">${m.tipo}</div>
+      <div class="valor">${formatar(m.valor)}</div>
+      <div class="descricao">${m.descricao}</div>
+      <div class="info">${m.nome} em ${m.data}</div>
+    `;
+    linha.onclick = function () {
+      if (extratoSelecionado === index) {
+        linha.classList.remove("selected");
+        extratoSelecionado = null;
+      } else {
+        document.querySelectorAll(".movimentacao").forEach(item => item.classList.remove("selected"));
+        linha.classList.add("selected");
+        extratoSelecionado = index;
+      }
+    };
+    lista.appendChild(linha);
+  });
+}
 
   function limparHistorico() {
     if (extratoSelecionado !== null) {
@@ -402,8 +407,6 @@ background-color: #4b4b4b;
       alert("Saldo insuficiente para saque.");
       return;
     }
-          document.getElementById("user-name").textContent = usuario;
-      document.getElementById("app-section").classList.remove("hidden");
 
     saldo -= valor;
     registrarExtrato("Saque", valor, nome, descricao || "Sem descrição");
@@ -417,8 +420,8 @@ background-color: #4b4b4b;
 
 <div id="login-overlay" class="overlay">
   <div class="login-box">
-    <img src="https://i.ibb.co/d4HfDzg3/aa542b7bbdbd147857a3df8059f7bc22.webp" alt="Descrição" style="display: block; margin: auto; width: 100px;">
-<h2 style="text-align: center;">Login</h2>
+    <img src="https://i.ibb.co/d4HfDzg3/aa542b7bbdbd147857a3df8059f7bc22.webp" alt="Login" style="display: block; margin: auto; width: 100px;">
+    <h2 style="text-align: center;">Login</h2>
     <input type="text" id="login-nome" placeholder="Usuário" />
     <input type="password" id="login-senha" placeholder="Senha" />
     <div class="login-checkbox">
@@ -427,15 +430,16 @@ background-color: #4b4b4b;
     <button onclick="confirmarLogin()">Entrar</button>
   </div>
 </div>
+
 <div class="container">
-  <img src="https://i.ibb.co/d4HfDzg3/aa542b7bbdbd147857a3df8059f7bc22.webp" alt="Descrição" style="display: block; margin: auto; width: 100px;">
-      <div id="app-section" class="hidden">
-      <div id="user-info">
-        <span>Bem-vindo, <span id="name"></span></span>
-      </div>
-    <button class="button1" onclick="window.location.href = 'https://gomesducn.github.io/bancofac/controle.html';">CONTROLE BANCO</button>
-    <button class="button1" onclick="window.location.href = 'https://gomesducn.github.io/bancofac/ranking.html';">RANKING</button>
-    <button class="button1" onclick="window.location.href = 'https://gomesducn.github.io/bancofac/baulogs.html';">BAÚ</button>
+  <img src="https://i.ibb.co/d4HfDzg3/aa542b7bbdbd147857a3df8059f7bc22.webp" alt="Logo" style="display: block; margin: auto; width: 100px;">
+  <div id="user-info">
+    <span>Bem-vindo, <span id="name"></span></span>
+  </div>
+  <button class="button1" onclick="window.location.href = 'https://gomesducn.github.io/bancofac/controle.html';">CONTROLE BANCO</button>
+  <button class="button1" onclick="window.location.href = 'https://gomesducn.github.io/bancofac/ranking.html';">RANKING</button>
+  <button class="button1" onclick="window.location.href = 'https://gomesducn.github.io/bancofac/baulogs.html';">BAÚ</button>
+
   <div id="tempo-restante"></div>
 
   <label for="nome">Nome do responsável:</label>
@@ -469,5 +473,6 @@ background-color: #4b4b4b;
     <button style="background-color: crimson; color: white;" onclick="limparHistorico()">🧹 Limpar Histórico</button>
   </div>
 </div>
+
 </body>
 </html>
