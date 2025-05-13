@@ -29,10 +29,10 @@
       border-radius: 5px;
     }
     input[type="number"], input[type="text"] {
-      width: 100px;
+      width: 130px;
     }
     .login, .admin-panel, #painel {
-      max-width: 400px;
+      max-width: 600px;
       margin: 20px auto;
       background: #797979;
       padding: 20px;
@@ -45,7 +45,7 @@
       margin-top: 20px;
     }
     th, td {
-      color:#000000;
+      color: #000000;
       padding: 10px;
       border-bottom: 1px solid #000000;
       text-align: left;
@@ -61,12 +61,6 @@
       background-color: #ff4444;
       color: white;
       cursor: pointer;
-    }
-    #countdown {
-      font-size: 1.5em;
-      text-align: center;
-      color: #ffcc00;
-      margin-top: 20px;
     }
     .reminder {
       color: #ff4444;
@@ -129,7 +123,6 @@
     <div class="admin-panel">
       <button onclick="document.getElementById('login').classList.toggle('hidden')">Administração 🔐</button>
     </div>
-    <div id="countdown"></div>
   </div>
 
   <div id="login" class="login hidden">
@@ -141,32 +134,34 @@
     </form>
   </div>
 
-  <div id="painel" class="hidden">
+ <div id="painel" class="hidden">
     <div class="reminder">🚨 Lembre-se de inserir os pontos antes da meia-noite!</div>
     <h3>Cadastrar/Atualizar Jogador</h3>
-    <form onsubmit="adicionarOuAtualizarPlayer(event)">
+    <form id="playerForm">
       <input type="text" id="nome" placeholder="Nome do player" required>
-      <input type="number" id="diasFarm" placeholder="Dias de Farm (1 pt)" min="0">
-      <input type="number" id="diasSeringa" placeholder="Dias de Seringa (3 pt)" min="0">
+      <input type="number" id="diasFarm" placeholder="Dias/Farm (1pts)" min="0">
+      <input type="number" id="diasSeringa" placeholder="Dias/Seringa (3pts)" min="0">
       <button type="submit">Salvar</button>
     </form>
-    <button class="reset-btn" onclick="resetarRanking()">🔁 Resetar Ranking Semanal</button>
-    <form onsubmit="event.preventDefault(); removerPlayer();">
+
+    <form id="removerForm">
       <h3>Remover Jogador</h3>
-      <input type="text" id="removerNome" placeholder="Nome para remover">
+      <input type="text" id="removerNome" placeholder="Nome para remover" required>
       <button type="submit">❌ Remover</button>
     </form>
   </div>
 
   <script type="module">
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-    import { getFirestore, doc, setDoc, getDoc, collection, getDocs, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import {
+      getFirestore, doc, setDoc, getDoc, collection, getDocs, deleteDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDHtiSfaj2xw69j-bTj_fB26Ov2hGuC858",
       authDomain: "ranking-7d2c1.firebaseapp.com",
       projectId: "ranking-7d2c1",
-      storageBucket: "ranking-7d2c1.firebasestorage.app",
+      storageBucket: "ranking-7d2c1.appspot.com",
       messagingSenderId: "90939164247",
       appId: "1:90939164247:web:135250fb919318fd3f4512",
       measurementId: "G-48TGM4K8D6"
@@ -178,28 +173,20 @@
     const LOGIN_USER = "admin";
     const LOGIN_PASS = "1234";
 
-    // Função de login
-    function validarLogin() {
+    document.getElementById("adminForm").addEventListener("submit", e => {
+      e.preventDefault();
       const u = document.getElementById("user").value;
       const p = document.getElementById("pass").value;
       if (u === LOGIN_USER && p === LOGIN_PASS) {
         document.getElementById("login").classList.add("hidden");
         document.getElementById("painel").classList.remove("hidden");
-        document.getElementById("user").value = "";
-        document.getElementById("pass").value = "";
       } else {
-        alert("Login ou senha inválidos");
+        alert("Login ou senha inválidos.");
       }
-    }
-
-    // Listener do formulário de login
-    document.getElementById("adminForm").addEventListener("submit", function(e) {
-      e.preventDefault();
-      validarLogin();
     });
 
-    async function adicionarOuAtualizarPlayer(event) {
-      event.preventDefault();
+    document.getElementById("playerForm").addEventListener("submit", async e => {
+      e.preventDefault();
       const nome = document.getElementById("nome").value.trim();
       const diasFarm = parseInt(document.getElementById("diasFarm").value) || 0;
       const diasSeringa = parseInt(document.getElementById("diasSeringa").value) || 0;
@@ -207,10 +194,10 @@
       const hoje = new Date().toLocaleDateString("pt-BR");
 
       const ref = doc(db, "ranking", nome.toLowerCase());
-      const snapshot = await getDoc(ref);
+      const snap = await getDoc(ref);
 
-      if (snapshot.exists()) {
-        const data = snapshot.data();
+      if (snap.exists()) {
+        const data = snap.data();
         await setDoc(ref, {
           nome,
           diasFarm: data.diasFarm + diasFarm,
@@ -228,39 +215,40 @@
         });
       }
       atualizarTabela();
-      document.getElementById("nome").value = "";
-      document.getElementById("diasFarm").value = "";
-      document.getElementById("diasSeringa").value = "";
-    }
+      e.target.reset();
+    });
 
-    async function removerPlayer() {
+    document.getElementById("removerForm").addEventListener("submit", async e => {
+      e.preventDefault();
       const nome = document.getElementById("removerNome").value.trim();
       if (!nome) return;
       await deleteDoc(doc(db, "ranking", nome.toLowerCase()));
       atualizarTabela();
-    }
+    });
 
     async function resetarRanking() {
-      if (!confirm("Tem certeza que deseja resetar o ranking semanal? Essa ação é irreversível.")) return;
-      const col = await getDocs(collection(db, "ranking"));
-      col.forEach(async docu => {
-        await deleteDoc(doc(db, "ranking", docu.id));
+      if (!confirm("Tem certeza que deseja resetar o ranking?")) return;
+      const snap = await getDocs(collection(db, "ranking"));
+      const promises = [];
+      snap.forEach(docSnap => {
+        const ref = doc(db, "ranking", docSnap.id);
+        promises.push(deleteDoc(ref));
       });
+      await Promise.all(promises);
       atualizarTabela();
     }
 
     async function atualizarTabela() {
-      const col = collection(db, "ranking");
-      const snapshot = await getDocs(col);
-      const ranking = [];
-      snapshot.forEach(doc => ranking.push(doc.data()));
-      ranking.sort((a, b) => b.pontos - a.pontos);
+      const snap = await getDocs(collection(db, "ranking"));
+      const dados = [];
+      snap.forEach(doc => dados.push(doc.data()));
+      dados.sort((a, b) => b.pontos - a.pontos);
 
       const tbody = document.getElementById("rankingBody");
       tbody.innerHTML = "";
-      ranking.forEach((p, index) => {
-        let medalha = index === 0 ? "🥇 " : index === 1 ? "🥈 " : index === 2 ? "🥉 " : "";
-        const historico = p.historico?.map(h => `<li>${h.data}: +${h.pontos} pts</li>`).join("") || "-";
+      dados.forEach((p, i) => {
+        const medalha = i === 0 ? "🥇 " : i === 1 ? "🥈 " : i === 2 ? "🥉 " : "";
+        const historico = (p.historico || []).map(h => `<li>${h.data}: +${h.pontos} pts</li>`).join("");
         tbody.innerHTML += `
           <tr>
             <td>${medalha}${p.nome}</td>
@@ -268,36 +256,11 @@
             <td>${p.diasSeringa}</td>
             <td>${p.pontos}</td>
             <td><ul>${historico}</ul></td>
-          </tr>`;
+          </tr>
+        `;
       });
     }
 
-    function iniciarContagem() {
-      const agora = new Date();
-      const dia = agora.getDay();
-      const diff = 7 - dia;
-      const proximoDomingo = new Date();
-      proximoDomingo.setDate(agora.getDate() + diff);
-      proximoDomingo.setHours(23, 59, 59, 999);
-
-      function atualizar() {
-        const agora = new Date();
-        const restante = proximoDomingo - agora;
-        if (restante <= 0) {
-          document.getElementById("countdown").textContent = "🏁 Fim do Ranking Semanal!";
-          return;
-        }
-        const dias = Math.floor(restante / (1000 * 60 * 60 * 24));
-        const horas = Math.floor((restante / (1000 * 60 * 60)) % 24);
-        const minutos = Math.floor((restante / (1000 * 60)) % 60);
-        const segundos = Math.floor((restante / 1000) % 60);
-        document.getElementById("countdown").textContent = `⏳ Tempo restante: ${dias}d ${horas}h ${minutos}m ${segundos}s`;
-      }
-
-      setInterval(atualizar, 1000);
-    }
-
-    iniciarContagem();
     atualizarTabela();
   </script>
 </body>
