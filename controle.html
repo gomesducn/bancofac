@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>Controle - Banco Fac</title>
   <style>
-    /* (estilos preservados, sem mudanças) */
+    /* (estilos preservados) */
     body {
       font-family: Arial, sans-serif;
       margin: 0;
@@ -173,6 +173,9 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 10px;
     }
 
     #user-info span {
@@ -190,6 +193,21 @@
 
     .button:hover {
       background-color: #4b4b4b;
+    }
+    
+    .logout {
+      text-align: center;
+      padding: 5px 20px;
+      border-radius: 8px;
+      border: none;
+      background-color: #616161;
+      color: white;
+      cursor: pointer;
+      display: block;
+      font-size: 1rem;
+      transition: background 0.3s ease;
+      max-width: 100px;
+      width: 100%;
     }
   </style>
 </head>
@@ -225,39 +243,54 @@
     "VitorBekker": "bgdoback24"
   };
 
-function confirmarLogin() {
-  const nome = document.getElementById("login-nome").value.trim();
-  const senha = document.getElementById("login-senha").value.trim();
+  function confirmarLogin() {
+    const nome = document.getElementById("login-nome").value.trim();
+    const senha = document.getElementById("login-senha").value.trim();
+    const email = nome + "@bancofac.com";
 
-  const email = nome + "@bancofac.com"; // Firebase exige um e-mail válido
+    firebase.auth().signInWithEmailAndPassword(email, senha)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        document.getElementById("login-overlay").style.display = "none";
+        document.body.classList.remove("blur-fundo");
+        document.getElementById("nome").value = nome;
+        document.getElementById("name").innerText = nome;
+        carregarDados();
+      })
+      .catch((error) => {
+        console.error("Erro no login:", error.message);
+        alert("Usuário ou senha inválidos.");
+      });
+  }
 
-  firebase.auth().signInWithEmailAndPassword(email, senha)
-    .then((userCredential) => {
-      const user = userCredential.user;
+  function logout() {
+    firebase.auth().signOut().then(() => {
+      document.getElementById("login-overlay").style.display = "flex";
+      document.body.classList.add("blur-fundo");
+      document.getElementById("nome").value = "";
+      document.getElementById("name").innerText = "";
+      saldo = 0;
+      extrato = [];
+      atualizarSaldo();
+      atualizarExtrato();
+    }).catch((error) => {
+      console.error("Erro ao fazer logout:", error);
+      alert("Erro ao sair. Tente novamente.");
+    });
+  }
+
+  firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
+      const nome = user.email.split("@")[0];
       document.getElementById("login-overlay").style.display = "none";
       document.body.classList.remove("blur-fundo");
       document.getElementById("nome").value = nome;
       document.getElementById("name").innerText = nome;
       carregarDados();
-    })
-    .catch((error) => {
-      console.error("Erro no login:", error.message);
-      alert("Usuário ou senha inválidos.");
-    });
-}
-
-firebase.auth().onAuthStateChanged((user) => {
-  if (user) {
-    const nome = user.email.split("@")[0]; // extrai o nome
-    document.getElementById("login-overlay").style.display = "none";
-    document.body.classList.remove("blur-fundo");
-    document.getElementById("nome").value = nome;
-    document.getElementById("name").innerText = nome;
-    carregarDados();
-  } else {
-    document.getElementById("login-overlay").style.display = "flex";
-  }
-});
+    } else {
+      document.getElementById("login-overlay").style.display = "flex";
+    }
+  });
 
   function formatar(valor) {
     return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0 });
@@ -302,7 +335,6 @@ firebase.auth().onAuthStateChanged((user) => {
       };
       lista.appendChild(linha);
     });
-    
   }
 
   function limparHistorico() {
@@ -375,9 +407,8 @@ firebase.auth().onAuthStateChanged((user) => {
     document.getElementById("descricao").value = "";
   }
 
-  preencherLoginSalvo();
+  preencherLoginSalvo?.();
 </script>
-
 
 <div id="login-overlay" class="overlay">
   <div class="login-box">
@@ -388,15 +419,18 @@ firebase.auth().onAuthStateChanged((user) => {
     <div class="login-checkbox">
       <label><input type="checkbox" id="lembrar-login" /> Salvar login e senha</label>
     </div>
-<button onclick="confirmarLogin()">Entrar</button>
+    <button onclick="confirmarLogin()">Entrar</button>
   </div>
 </div>
 
 <div class="container">
   <img src="https://i.ibb.co/d4HfDzg3/aa542b7bbdbd147857a3df8059f7bc22.webp" alt="Logo" style="display: block; margin: auto; width: 100px;">
+  
   <div id="user-info">
     <span>Bem-vindo, <span id="name"></span></span>
+    <button class="logout" onclick="logout()">Logout</button>
   </div>
+
   <button class="button1" onclick="window.location.href = 'https://gomesducn.github.io/bancofac/controle.html';">CONTROLE BANCO</button>
   <button class="button1" onclick="window.location.href = 'https://gomesducn.github.io/bancofac/ranking.html';">RANKING</button>
   <button class="button1" onclick="window.location.href = 'https://gomesducn.github.io/bancofac/baulogs.html';">BAÚ</button>
