@@ -231,6 +231,25 @@
   let extrato = [];
   let extratoSelecionado = null;
 
+  // ------------------------------
+  // AUTO LOGOUT APÓS 10 MINUTOS
+  let logoutTimer;
+  function iniciarLogoutTimer() {
+    clearTimeout(logoutTimer);
+    logoutTimer = setTimeout(() => {
+      firebase.auth().signOut().then(() => {
+        alert("Sessão expirada por inatividade. Faça login novamente.");
+        location.reload();
+      });
+    }, 10 * 60 * 1000); // 10 minutos
+  }
+
+  // Resetar o timer com qualquer atividade
+  ["click", "mousemove", "keydown", "scroll"].forEach(evt =>
+    document.addEventListener(evt, iniciarLogoutTimer)
+  );
+  // ------------------------------
+
   const usuarios = {
     "Gomes": "gomestdc2024",
     "Agostinho": "agostinho2025",
@@ -256,6 +275,7 @@
         document.getElementById("nome").value = nome;
         document.getElementById("name").innerText = nome;
         carregarDados();
+        iniciarLogoutTimer(); // Inicia o timer após login
       })
       .catch((error) => {
         console.error("Erro no login:", error.message);
@@ -287,6 +307,7 @@
       document.getElementById("nome").value = nome;
       document.getElementById("name").innerText = nome;
       carregarDados();
+      iniciarLogoutTimer(); // Inicia o timer se já logado
     } else {
       document.getElementById("login-overlay").style.display = "flex";
     }
