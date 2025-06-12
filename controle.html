@@ -79,6 +79,11 @@
       font-weight: bold;
       cursor: pointer;
     }
+    .venda {
+  background-color: #fff3cd; /* tom de laranja claro */
+  border-left: 5px solid orange;
+}
+
 
     .saldo {
       font-size: 1.2em;
@@ -112,6 +117,10 @@
       background-color: #f8d7da;
       border-left: 5px solid red;
     }
+    .venda {
+      background-color: #fff3cd; /* tom de laranja claro */
+      border-left: 5px solid orange;
+     }
 
     .selected {
       border: 2px solid blue;
@@ -331,32 +340,37 @@
     atualizarExtrato();
   }
 
-  function atualizarExtrato() {
-    const lista = document.getElementById("extrato-lista");
-    lista.innerHTML = "";
+function atualizarExtrato() {
+  const lista = document.getElementById("extrato-lista");
+  lista.innerHTML = "";
 
-    extrato.slice(0, 5).forEach((m, index) => {
-      const linha = document.createElement("div");
-      linha.classList.add("movimentacao", m.tipo === "Depósito" ? "deposito" : "saque");
-      linha.innerHTML = `
-        <div class="tipo">${m.tipo}</div>
-        <div class="valor">${formatar(m.valor)}</div>
-        <div class="descricao">${m.descricao}</div>
-        <div class="info">${m.nome} em ${m.data}</div>
-      `;
-      linha.onclick = function () {
-        if (extratoSelecionado === index) {
-          linha.classList.remove("selected");
-          extratoSelecionado = null;
-        } else {
-          document.querySelectorAll(".movimentacao").forEach(item => item.classList.remove("selected"));
-          linha.classList.add("selected");
-          extratoSelecionado = index;
-        }
-      };
-      lista.appendChild(linha);
-    });
-  }
+  extrato.slice(0, 5).forEach((m, index) => {
+    const linha = document.createElement("div");
+    linha.classList.add("movimentacao");
+    if (m.tipo === "Depósito") linha.classList.add("deposito");
+    else if (m.tipo === "Venda") linha.classList.add("venda");
+    else if (m.tipo === "Saque") linha.classList.add("saque");
+
+    linha.innerHTML = `
+      <div class="tipo">${m.tipo}</div>
+      <div class="valor">${formatar(m.valor)}</div>
+      <div class="descricao">${m.descricao}</div>
+      <div class="info">${m.nome} em ${m.data}</div>
+    `;
+    linha.onclick = function () {
+      if (extratoSelecionado === index) {
+        linha.classList.remove("selected");
+        extratoSelecionado = null;
+      } else {
+        document.querySelectorAll(".movimentacao").forEach(item => item.classList.remove("selected"));
+        linha.classList.add("selected");
+        extratoSelecionado = index;
+      }
+    };
+    lista.appendChild(linha);
+  });
+}
+
 
   function limparHistorico() {
     if (extratoSelecionado !== null) {
@@ -389,44 +403,38 @@
     });
   }
 
-  function depositar() {
-    const valor = parseFloat(document.getElementById("valor").value);
-    const descricao = document.getElementById("descricao").value.trim();
-    const nome = document.getElementById("nome").value;
+function confirmarMovimentacao() {
+  const tipo = document.getElementById("tipo-movimentacao").value;
+  const valor = parseFloat(document.getElementById("valor").value);
+  const descricao = document.getElementById("descricao").value.trim();
+  const nome = document.getElementById("nome").value;
 
-    if (!valor || valor <= 0) {
-      alert("Insira um valor válido para depósito.");
-      return;
-    }
+  if (!valor || valor <= 0) {
+    alert("Insira um valor válido.");
+    return;
+  }
 
+  if (tipo === "Saque" && valor > saldo) {
+    alert("Saldo insuficiente para saque.");
+    return;
+  }
+
+  if (tipo === "Depósito" || tipo === "Venda") {
     saldo += valor;
-    registrarExtrato("Depósito", valor, nome, descricao || "Sem descrição");
-    atualizarSaldo();
-    document.getElementById("valor").value = "";
-    document.getElementById("descricao").value = "";
-  }
-
-  function sacar() {
-    const valor = parseFloat(document.getElementById("valor").value);
-    const descricao = document.getElementById("descricao").value.trim();
-    const nome = document.getElementById("nome").value;
-
-    if (!valor || valor <= 0) {
-      alert("Insira um valor válido para saque.");
-      return;
-    }
-
-    if (valor > saldo) {
-      alert("Saldo insuficiente para saque.");
-      return;
-    }
-
+  } else if (tipo === "Saque") {
     saldo -= valor;
-    registrarExtrato("Saque", valor, nome, descricao || "Sem descrição");
-    atualizarSaldo();
-    document.getElementById("valor").value = "";
-    document.getElementById("descricao").value = "";
+  } else {
+    alert("Tipo de movimentação inválido.");
+    return;
   }
+
+  registrarExtrato(tipo, valor, nome, descricao || "Sem descrição");
+  atualizarSaldo();
+
+  document.getElementById("valor").value = "";
+  document.getElementById("descricao").value = "";
+}
+
 
   preencherLoginSalvo?.();
 </script>
@@ -467,10 +475,15 @@
   <label for="valor">Valor (R$):</label>
   <input type="number" id="valor" placeholder="Digite um valor" />
 
-  <div>
-    <button onclick="depositar()">Depositar</button>
-    <button onclick="sacar()">Sacar</button>
-  </div>
+<div>
+  <select id="tipo-movimentacao" style="padding:10px; font-size:16px; width: 48%;">
+    <option value="Depósito">Depósito</option>
+    <option value="Venda">Venda</option>
+    <option value="Saque">Saque</option>
+  </select>
+  <button onclick="confirmarMovimentacao()" style="width: 48%; padding:10px; font-size:16px; font-weight:bold; cursor:pointer;">Confirmar</button>
+</div>
+
 
   <div style="margin-top: 10px; text-align: center;">
     <a href="https://gomesducn.github.io/bancofac/relatorio.html" target="_blank">
