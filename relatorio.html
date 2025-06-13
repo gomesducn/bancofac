@@ -7,7 +7,7 @@
     body {
       font-family: Arial, sans-serif;
       padding: 20px;
-        background-image: url(https://i.ibb.co/yFJHFvpN/fundo.jpg);
+      background-image: url(https://i.ibb.co/yFJHFvpN/fundo.jpg);
       background-color: #f8f9fa;
     }
 
@@ -67,8 +67,8 @@
   </style>
 </head>
 <body>
-      <img src="https://i.ibb.co/d4HfDzg3/aa542b7bbdbd147857a3df8059f7bc22.webp" alt="Descrição" style="display: block; margin: auto; width: 100px;">
-<h1 style="color: #ffffff;">Relatório Bancário</h1>
+  <img src="https://i.ibb.co/d4HfDzg3/aa542b7bbdbd147857a3df8059f7bc22.webp" alt="Descrição" style="display: block; margin: auto; width: 100px;">
+  <h1 style="color: #ffffff;">Relatório Bancário</h1>
 
   <div class="filtros">
     <input type="text" id="filtro-nome" placeholder="Filtrar por nome" />
@@ -156,9 +156,16 @@
     }
 
     function exportarCSV() {
-      let csv = "Data,Tipo,Valor,Descrição,Responsável\n";
+let csv = "data;tipo;descrição;valor;usuário\n";
       extrato.forEach(item => {
-        csv += `"${item.data}","${item.tipo}","${item.valor}","${item.descricao}","${item.nome}"\n`;
+        const data = item.data || "";
+        const tipo = item.tipo || "";
+        const descricao = (item.descricao || "").replace(/"/g, '""');
+        const valor = parseFloat(item.valor || 0).toFixed(2).replace(".", ",");
+        const usuario = (item.nome || "").replace(/"/g, '""');
+        const observacao = ""; // Adapte se usar campo de observação
+
+csv += `"${data}";"${tipo}";"${descricao}";"${valor}";"${usuario}"\n`;
       });
 
       const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
