@@ -111,6 +111,7 @@
       <button class="btn-secondary" onclick="gerarGrafico()">🗓 Filtrar Gráfico</button>
     </div>
     <canvas id="graficoVendas"></canvas>
+    <div id="total-filtrado"></div> <!-- Total abaixo do gráfico -->
   </div>
 </div>
 
@@ -323,20 +324,27 @@ function limparHistorico() {
     const df = document.getElementById('dataFim').value;
     const start = di ? new Date(di) : new Date(0);
     const end = df ? new Date(df) : new Date();
+
     const map = {};
+    let totalFiltrado = 0;
+
     extrato.filter(e => ['Venda', 'Depósito'].includes(e.tipo)).forEach(e => {
       const partesData = e.data.split(',')[0].split('/');
       const d = new Date(`${partesData[2]}-${partesData[1]}-${partesData[0]}`);
       if (d < start || d > end) return;
+
       const key = e.data.split(',')[0];
       map[key] = (map[key] || 0) + e.valor;
+      totalFiltrado += e.valor;
     });
+
     const labels = Object.keys(map).sort((a, b) => {
       const [da, ma, ya] = a.split('/').map(Number);
       const [db, mb, yb] = b.split('/').map(Number);
       return new Date(ya, ma - 1, da) - new Date(yb, mb - 1, db);
     });
     const data = labels.map(l => map[l]);
+
     if (chart) chart.destroy();
     chart = new Chart(document.getElementById('graficoVendas'), {
       type: 'bar',
@@ -351,9 +359,15 @@ function limparHistorico() {
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        scales: { y: { ticks: { callback: v => formatar(v) } } }
+        scales: {
+          y: {
+            ticks: { callback: v => formatar(v) }
+          }
+        }
       }
     });
+
+    document.getElementById('total-filtrado').innerText = `Total no Período: ${formatar(totalFiltrado)}`;
   }
 
   function logout() {
