@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Relatório de Extrato - BANCO FAC</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-image: url(https://i.ibb.co/yFJHFvpN/fundo.jpg);
+      background-color: #f8f9fa;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .filtros {
+      margin-bottom: 20px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .filtros input, .filtros select {
+      padding: 8px;
+      font-size: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    th, td {
+      padding: 10px;
+      border: 1px solid #ccc;
+      text-align: left;
+    }
+
+    th {
+      background-color: #007bff;
+      color: white;
+    }
+
+    .acoes {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .acoes button {
+      padding: 10px 15px;
+      margin: 0 10px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .deposito {
+      background-color: #d4edda;
+    }
+
+    .saque {
+      background-color: #f8d7da;
+    }
+  </style>
+</head>
+<body>
+  <img src="https://i.ibb.co/d4HfDzg3/aa542b7bbdbd147857a3df8059f7bc22.webp" alt="Descrição" style="display: block; margin: auto; width: 100px;">
+  <h1 style="color: #ffffff;">Relatório Bancário</h1>
+
+  <div class="filtros">
+    <input type="text" id="filtro-nome" placeholder="Filtrar por nome" />
+    <select id="filtro-tipo">
+      <option value="">Todos os tipos</option>
+      <option value="Depósito">Depósito</option>
+      <option value="Saque">Saque</option>
+    </select>
+    <input type="date" id="filtro-data" />
+    <button onclick="filtrar()">Aplicar Filtros</button>
+  </div>
+
+  <table id="tabela-extrato">
+    <thead>
+      <tr>
+        <th>Data</th>
+        <th>Tipo</th>
+        <th>Valor</th>
+        <th>Descrição</th>
+        <th>Responsável</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- conteúdo será inserido via JavaScript -->
+    </tbody>
+  </table>
+
+  <div class="acoes">
+    <button onclick="window.print()">🖨️ Imprimir</button>
+    <button onclick="exportarCSV()">📥 Exportar CSV</button>
+  </div>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCFx7YYsI0jS2tN3sMtOUMRaNHJSIONX6A",
+      authDomain: "bancofac-2aa1d.firebaseapp.com",
+      databaseURL: "https://bancofac-2aa1d-default-rtdb.firebaseio.com/",
+      projectId: "bancofac-2aa1d",
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    let extrato = [];
+
+    function carregarExtrato() {
+      db.ref("controleCaixa/extrato").once("value", snapshot => {
+        extrato = snapshot.val() || [];
+        exibirTabela(extrato);
+      });
+    }
+
+    function exibirTabela(dados) {
+      const tbody = document.querySelector("#tabela-extrato tbody");
+      tbody.innerHTML = "";
+      dados.forEach(item => {
+        const tr = document.createElement("tr");
+        tr.className = item.tipo === "Depósito" ? "deposito" : "saque";
+        tr.innerHTML = `
+          <td>${item.data}</td>
+          <td>${item.tipo}</td>
+          <td>${parseFloat(item.valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+          <td>${item.descricao}</td>
+          <td>${item.nome}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function filtrar() {
+      const nome = document.getElementById("filtro-nome").value.toLowerCase();
+      const tipo = document.getElementById("filtro-tipo").value;
+      const data = document.getElementById("filtro-data").value;
+
+      const filtrado = extrato.filter(item => {
+        const nomeMatch = !nome || item.nome.toLowerCase().includes(nome);
+        const tipoMatch = !tipo || item.tipo === tipo;
+        const dataMatch = !data || item.data.startsWith(data.split('-').reverse().join('/'));
+        return nomeMatch && tipoMatch && dataMatch;
+      });
+
+      exibirTabela(filtrado);
+    }
+
+    function exportarCSV() {
+let csv = "data;tipo;descrição;valor;usuário\n";
+      extrato.forEach(item => {
+        const data = item.data || "";
+        const tipo = item.tipo || "";
+        const descricao = (item.descricao || "").replace(/"/g, '""');
+        const valor = parseFloat(item.valor || 0).toFixed(2).replace(".", ",");
+        const usuario = (item.nome || "").replace(/"/g, '""');
+        const observacao = ""; // Adapte se usar campo de observação
+
+csv += `"${data}";"${tipo}";"${descricao}";"${valor}";"${usuario}"\n`;
+      });
+
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
+      link.setAttribute("href", URL.createObjectURL(blob));
+      link.setAttribute("download", "extrato_banco_fac.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    carregarExtrato();
+  </script>
+</body>
+</html>
