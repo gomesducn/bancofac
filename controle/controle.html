@@ -174,40 +174,48 @@
     });
   }
 
-  function confirmarMovimentacao() {
-    const tipo = document.getElementById('tipo-movimentacao').value;
-    const valor = parseFloat(document.getElementById('valor').value);
-    const descricao = document.getElementById('descricao').value;
+function confirmarMovimentacao() {
+  const tipo = document.getElementById('tipo-movimentacao').value;
+  const valor = parseFloat(document.getElementById('valor').value);
+  const descricao = document.getElementById('descricao').value;
 
-    if (!usuarioLogado) {
-      alert('Usuário não autenticado. Faça login novamente.');
-      return;
-    }
-
-    const autor = usuarioLogado.displayName ? usuarioLogado.displayName : usuarioLogado.email.split('@')[0];
-
-    if (!tipo || isNaN(valor) || (tipo === 'Saque' && valor > saldo)) {
-      return alert('Preencha os campos corretamente ou saldo insuficiente.');
-    }
-
-    saldo += tipo === 'Saque' ? -valor : valor;
-    extrato.unshift({
-      tipo,
-      descricao,
-      autor,
-      valor,
-      data: new Date().toLocaleString('pt-BR')
-    });
-
-    db.ref('controleCaixa').set({ saldo, extrato });
-    atualizarSaldo();
-    atualizarExtrato();
-    gerarGrafico();
-
-    document.getElementById('valor').value = '';
-    document.getElementById('descricao').value = '';
-    document.getElementById('tipo-movimentacao').value = '';
+  if (!usuarioLogado) {
+    alert('Usuário não autenticado. Faça login novamente.');
+    return;
   }
+
+  let autor = "Desconhecido";
+  if (usuarioLogado) {
+    if (usuarioLogado.displayName && usuarioLogado.displayName.trim() !== "") {
+      autor = usuarioLogado.displayName;
+    } else if (usuarioLogado.email) {
+      autor = usuarioLogado.email.split('@')[0];
+    }
+  }
+
+  if (!tipo || isNaN(valor) || (tipo === 'Saque' && valor > saldo)) {
+    return alert('Preencha os campos corretamente ou saldo insuficiente.');
+  }
+
+  saldo += tipo === 'Saque' ? -valor : valor;
+  extrato.unshift({
+    tipo,
+    descricao,
+    autor,
+    valor,
+    data: new Date().toLocaleString('pt-BR')
+  });
+
+  db.ref('controleCaixa').set({ saldo, extrato });
+  atualizarSaldo();
+  atualizarExtrato();
+  gerarGrafico();
+
+  document.getElementById('valor').value = '';
+  document.getElementById('descricao').value = '';
+  document.getElementById('tipo-movimentacao').value = '';
+}
+
 
 function limparHistorico() {
   if (extrato.length === 0) return alert('Nenhum extrato disponível.');
