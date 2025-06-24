@@ -52,8 +52,14 @@
     .extrato-item:last-child { border: none; }
     .valor-negativo { color: #ef4444; }
     .valor-positivo { color: #10b981; }
-    .filtros { display: flex; gap: 1rem; margin-bottom: 1rem; align-items: center; }
-    #graficoVendas { width: 100%; height: 350px !important; background: #fff; border-radius: 8px; }
+    .filtros { display: flex; gap: 1rem; margin-bottom: 1rem; align-items: center; flex-wrap: wrap; }
+    #graficoVendas {
+      width: 100%;
+      height: 500px !important;
+      background: #fff;
+      border-radius: 8px;
+      padding: 1rem;
+    }
     #usuario-logado { margin-bottom: 1rem; font-weight: bold; color: #4b5563; }
   </style>
 </head>
@@ -106,12 +112,15 @@
 
   <div class="card">
     <div class="filtros">
+      <input type="checkbox" id="filtro-venda" checked> <label for="filtro-venda">Vendas</label>
+      <input type="checkbox" id="filtro-deposito" checked> <label for="filtro-deposito">Depósitos</label>
+      <input type="checkbox" id="filtro-saque" checked> <label for="filtro-saque">Saques</label>
       <input type="date" id="dataInicio">
       <input type="date" id="dataFim">
       <button class="btn-secondary" onclick="gerarGrafico()">🗓 Filtrar Gráfico</button>
     </div>
     <canvas id="graficoVendas"></canvas>
-    <div id="total-filtrado"></div> <!-- Total abaixo do gráfico -->
+    <div id="total-filtrado"></div>
   </div>
 </div>
 
@@ -175,148 +184,124 @@
     });
   }
 
-function confirmarMovimentacao() {
-  const tipo = document.getElementById('tipo-movimentacao').value;
-  const valor = parseFloat(document.getElementById('valor').value);
-  const descricao = document.getElementById('descricao').value;
+  function confirmarMovimentacao() {
+    const tipo = document.getElementById('tipo-movimentacao').value;
+    const valor = parseFloat(document.getElementById('valor').value);
+    const descricao = document.getElementById('descricao').value;
 
-  if (!usuarioLogado) {
-    alert('Usuário não autenticado. Faça login novamente.');
-    return;
-  }
-
-  let autor = "Desconhecido";
-  if (usuarioLogado) {
-    if (usuarioLogado.displayName && usuarioLogado.displayName.trim() !== "") {
-      autor = usuarioLogado.displayName;
-    } else if (usuarioLogado.email) {
-      autor = usuarioLogado.email.split('@')[0];
-    }
-  }
-
-  if (!tipo || isNaN(valor) || (tipo === 'Saque' && valor > saldo)) {
-    return alert('Preencha os campos corretamente ou saldo insuficiente.');
-  }
-
-  saldo += tipo === 'Saque' ? -valor : valor;
-  extrato.unshift({
-    tipo,
-    descricao,
-    autor,
-    valor,
-    data: new Date().toLocaleString('pt-BR')
-  });
-
-  db.ref('controleCaixa').set({ saldo, extrato });
-  atualizarSaldo();
-  atualizarExtrato();
-  gerarGrafico();
-
-  document.getElementById('valor').value = '';
-  document.getElementById('descricao').value = '';
-  document.getElementById('tipo-movimentacao').value = '';
-}
-
-
-function limparHistorico() {
-  if (extrato.length === 0) return alert('Nenhum extrato disponível.');
-
-  const agora = new Date();
-  const inicioPeriodoUm = new Date(2025, 5, 1); // 01/06/2025 (mês 5 = junho)
-  const inicioMesPassado = new Date(agora.getFullYear(), agora.getMonth() - 1, 1);
-  const fimMesPassado = new Date(agora.getFullYear(), agora.getMonth(), 0);
-
-  let periodo = prompt(
-    `De qual período você deseja visualizar as transações para excluir?\n\n` +
-    `1 - De 01/06/2025 até ${agora.toLocaleDateString('pt-BR')}\n` +
-    `2 - Mês Passado (${inicioMesPassado.toLocaleDateString('pt-BR')} até ${fimMesPassado.toLocaleDateString('pt-BR')})`
-  );
-
-  let extratoFiltrado = [];
-
-  function parseDataFlexivel(dataString) {
-    if (!dataString) return null;
-
-    let data;
-    const partes = dataString.split(',')[0].split('/');
-
-    if (partes.length === 3 && partes[2].length === 4) {
-      // Formato brasileiro (dd/mm/yyyy)
-      data = new Date(`${partes[2]}-${partes[1]}-${partes[0]}`);
-    } else if (!isNaN(Date.parse(dataString))) {
-      // Formato ISO ou algo que o JS entenda direto
-      data = new Date(dataString);
-    } else {
-      return null;
+    if (!usuarioLogado) {
+      alert('Usuário não autenticado. Faça login novamente.');
+      return;
     }
 
-    return isNaN(data.getTime()) ? null : data;
-  }
+    let autor = usuarioLogado.displayName || usuarioLogado.email.split('@')[0];
 
-  if (periodo === '1') {
-    extratoFiltrado = extrato.filter(e => {
-      let dataTransacao = parseDataFlexivel(e.data);
-      return dataTransacao && dataTransacao >= inicioPeriodoUm && dataTransacao <= agora;
+    if (!tipo || isNaN(valor) || (tipo === 'Saque' && valor > saldo)) {
+      return alert('Preencha os campos corretamente ou saldo insuficiente.');
+    }
+
+    saldo += tipo === 'Saque' ? -valor : valor;
+    extrato.unshift({
+      tipo,
+      descricao,
+      autor,
+      valor,
+      data: new Date().toLocaleString('pt-BR')
     });
-  } else if (periodo === '2') {
-    extratoFiltrado = extrato.filter(e => {
-      let dataTransacao = parseDataFlexivel(e.data);
-      return dataTransacao && dataTransacao >= inicioMesPassado && dataTransacao <= fimMesPassado;
-    });
-  } else {
-    return alert('Período inválido ou cancelado.');
-  }
 
-  if (extratoFiltrado.length === 0) {
-    return alert('Nenhuma transação encontrada nesse período.');
-  }
-
-  let lista = extratoFiltrado.map((item, idx) => {
-    return `${idx + 1} – ${item.tipo} – ${item.descricao} – ${formatar(item.valor)} – ${item.autor} – ${item.data}`;
-  }).join('\n');
-
-  let escolha = prompt(`Escolha o número da transação que deseja excluir:\n\n${lista}`);
-  let indexEscolhido = parseInt(escolha) - 1;
-
-  if (isNaN(indexEscolhido) || indexEscolhido < 0 || indexEscolhido >= extratoFiltrado.length) {
-    return alert('Número inválido.');
-  }
-
-  let itemSelecionado = extratoFiltrado[indexEscolhido];
-
-  let senha = prompt('Digite a senha:');
-  if (senha !== 'tdc2024') return alert('Senha incorreta.');
-
-  let indexReal = extrato.findIndex(e =>
-    e.tipo === itemSelecionado.tipo &&
-    e.descricao === itemSelecionado.descricao &&
-    e.autor === itemSelecionado.autor &&
-    e.data === itemSelecionado.data &&
-    e.valor === itemSelecionado.valor
-  );
-
-  if (indexReal !== -1) {
-    saldo -= itemSelecionado.tipo === 'Saque' ? -itemSelecionado.valor : itemSelecionado.valor;
-    extrato.splice(indexReal, 1);
     db.ref('controleCaixa').set({ saldo, extrato });
     atualizarSaldo();
     atualizarExtrato();
     gerarGrafico();
-    alert('Transação excluída com sucesso.');
-  } else {
-    alert('Não foi possível localizar a transação.');
-  }
-}
 
-  function exportarExtrato() {
-    let csv = 'Tipo,Descrição,Autor,Data,Valor\n';
-    extrato.forEach(e => {
-      csv += `${e.tipo},${e.descricao},${e.autor},${e.data},${e.valor}\n`;
-    });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
-    a.download = 'extrato.csv';
-    a.click();
+    document.getElementById('valor').value = '';
+    document.getElementById('descricao').value = '';
+    document.getElementById('tipo-movimentacao').value = '';
+  }
+
+  function limparHistorico() {
+    if (extrato.length === 0) return alert('Nenhum extrato disponível.');
+
+    const agora = new Date();
+    const inicioPeriodoUm = new Date(2025, 5, 1);
+    const inicioMesPassado = new Date(agora.getFullYear(), agora.getMonth() - 1, 1);
+    const fimMesPassado = new Date(agora.getFullYear(), agora.getMonth(), 0);
+
+    let periodo = prompt(
+      `De qual período você deseja visualizar as transações para excluir?\n\n` +
+      `1 - De 01/06/2025 até ${agora.toLocaleDateString('pt-BR')}\n` +
+      `2 - Mês Passado (${inicioMesPassado.toLocaleDateString('pt-BR')} até ${fimMesPassado.toLocaleDateString('pt-BR')})`
+    );
+
+    let extratoFiltrado = [];
+
+    function parseDataFlexivel(dataString) {
+      if (!dataString) return null;
+      let data;
+      const partes = dataString.split(',')[0].split('/');
+      if (partes.length === 3 && partes[2].length === 4) {
+        data = new Date(`${partes[2]}-${partes[1]}-${partes[0]}`);
+      } else if (!isNaN(Date.parse(dataString))) {
+        data = new Date(dataString);
+      } else {
+        return null;
+      }
+      return isNaN(data.getTime()) ? null : data;
+    }
+
+    if (periodo === '1') {
+      extratoFiltrado = extrato.filter(e => {
+        let dataTransacao = parseDataFlexivel(e.data);
+        return dataTransacao && dataTransacao >= inicioPeriodoUm && dataTransacao <= agora;
+      });
+    } else if (periodo === '2') {
+      extratoFiltrado = extrato.filter(e => {
+        let dataTransacao = parseDataFlexivel(e.data);
+        return dataTransacao && dataTransacao >= inicioMesPassado && dataTransacao <= fimMesPassado;
+      });
+    } else {
+      return alert('Período inválido ou cancelado.');
+    }
+
+    if (extratoFiltrado.length === 0) {
+      return alert('Nenhuma transação encontrada nesse período.');
+    }
+
+    let lista = extratoFiltrado.map((item, idx) => {
+      return `${idx + 1} – ${item.tipo} – ${item.descricao} – ${formatar(item.valor)} – ${item.autor} – ${item.data}`;
+    }).join('\n');
+
+    let escolha = prompt(`Escolha o número da transação que deseja excluir:\n\n${lista}`);
+    let indexEscolhido = parseInt(escolha) - 1;
+
+    if (isNaN(indexEscolhido) || indexEscolhido < 0 || indexEscolhido >= extratoFiltrado.length) {
+      return alert('Número inválido.');
+    }
+
+    let itemSelecionado = extratoFiltrado[indexEscolhido];
+
+    let senha = prompt('Digite a senha:');
+    if (senha !== 'tdc2024') return alert('Senha incorreta.');
+
+    let indexReal = extrato.findIndex(e =>
+      e.tipo === itemSelecionado.tipo &&
+      e.descricao === itemSelecionado.descricao &&
+      e.autor === itemSelecionado.autor &&
+      e.data === itemSelecionado.data &&
+      e.valor === itemSelecionado.valor
+    );
+
+    if (indexReal !== -1) {
+      saldo -= itemSelecionado.tipo === 'Saque' ? -itemSelecionado.valor : itemSelecionado.valor;
+      extrato.splice(indexReal, 1);
+      db.ref('controleCaixa').set({ saldo, extrato });
+      atualizarSaldo();
+      atualizarExtrato();
+      gerarGrafico();
+      alert('Transação excluída com sucesso.');
+    } else {
+      alert('Não foi possível localizar a transação.');
+    }
   }
 
   function gerarGrafico() {
@@ -325,17 +310,27 @@ function limparHistorico() {
     const start = di ? new Date(di) : new Date(0);
     const end = df ? new Date(df) : new Date();
 
+    const incluirVendas = document.getElementById('filtro-venda').checked;
+    const incluirDepositos = document.getElementById('filtro-deposito').checked;
+    const incluirSaques = document.getElementById('filtro-saque').checked;
+
+    const tiposSelecionados = [];
+    if (incluirVendas) tiposSelecionados.push('Venda');
+    if (incluirDepositos) tiposSelecionados.push('Depósito');
+    if (incluirSaques) tiposSelecionados.push('Saque');
+
     const map = {};
     let totalFiltrado = 0;
 
-    extrato.filter(e => ['Venda', 'Depósito'].includes(e.tipo)).forEach(e => {
+    extrato.filter(e => tiposSelecionados.includes(e.tipo)).forEach(e => {
       const partesData = e.data.split(',')[0].split('/');
       const d = new Date(`${partesData[2]}-${partesData[1]}-${partesData[0]}`);
       if (d < start || d > end) return;
 
       const key = e.data.split(',')[0];
-      map[key] = (map[key] || 0) + e.valor;
-      totalFiltrado += e.valor;
+      let valor = e.tipo === 'Saque' ? -e.valor : e.valor;
+      map[key] = (map[key] || 0) + valor;
+      totalFiltrado += valor;
     });
 
     const labels = Object.keys(map).sort((a, b) => {
@@ -343,25 +338,41 @@ function limparHistorico() {
       const [db, mb, yb] = b.split('/').map(Number);
       return new Date(ya, ma - 1, da) - new Date(yb, mb - 1, db);
     });
+
     const data = labels.map(l => map[l]);
 
     if (chart) chart.destroy();
-    chart = new Chart(document.getElementById('graficoVendas'), {
+    chart = new Chart(document.getElementById('graficoVendas').getContext('2d'), {
       type: 'bar',
       data: {
         labels,
         datasets: [{
-          label: 'Vendas + Depósitos por Dia',
+          label: `Total por Dia (${tiposSelecionados.join(' + ')})`,
           data,
-          backgroundColor: '#3b82f6'
+          backgroundColor: data.map(valor => valor >= 0 ? '#3b82f6' : '#ef4444')
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        plugins: {
+          legend: { display: true },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return formatar(context.parsed.y);
+              }
+            }
+          }
+        },
         scales: {
           y: {
-            ticks: { callback: v => formatar(v) }
+            beginAtZero: true,
+            ticks: {
+              callback: function(value) {
+                return formatar(value);
+              }
+            }
           }
         }
       }
@@ -374,5 +385,6 @@ function limparHistorico() {
     firebase.auth().signOut().then(() => location.href = 'index.html');
   }
 </script>
+
 </body>
 </html>
