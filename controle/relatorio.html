@@ -3,102 +3,225 @@
 <head>
   <meta charset="UTF-8">
   <title>Relatório de Extrato - BANCO FAC</title>
+  <link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@700&family=Arial&display=swap" rel="stylesheet">
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-      background-image: url(https://i.ibb.co/yFJHFvpN/fundo.jpg);
-      background-color: #f8f9fa;
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
-    h1 {
-      text-align: center;
+    body {
+      font-family: 'Arial', sans-serif;
+      background: url('https://i.ibb.co/yFJHFvpN/fundo.jpg') repeat center center;
+      background-color: #f3f4f6;
+      color: #1f2937;
+      padding: 2rem;
+    }
+
+    header {
+      background: linear-gradient(90deg, #FBBF24, #F97316);
+      border-bottom: 2px solid #7C2D12;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    header h1 {
+      font-family: 'Amatic SC', cursive;
+      font-size: 2rem;
+      color: #fff;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    .logo {
+      display: block;
+      margin: 0 auto 1rem;
+      width: 100px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .card {
+      background: #fff;
+      border-bottom-right-radius: 12px;
+      border-bottom-left-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      margin-bottom: 2rem;
+      position: relative;
+      background-image: url('https://www.transparenttextures.com/patterns/checkered-pattern.png');
+      background-blend-mode: overlay;
+      background-color: rgba(255, 255, 255, 0.95);
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: -10px;
+      left: 0;
+      right: 0;
+      height: 10px;
+      background: repeating-linear-gradient(
+        45deg,
+        #FBBF24,
+        #FBBF24 10px,
+        #DC2626 10px,
+        #DC2626 20px
+      );
+      border-radius: 12px 12px 0 0;
     }
 
     .filtros {
-      margin-bottom: 20px;
       display: flex;
-      gap: 10px;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
       flex-wrap: wrap;
       justify-content: center;
+      align-items: center;
     }
 
     .filtros input, .filtros select {
-      padding: 8px;
-      font-size: 14px;
+      padding: 0.5rem;
+      border: 1px solid #7C2D12;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      background: #fff;
+    }
+
+    .filtros button {
+      padding: 0.75rem;
+      border: none;
+      border-radius: 8px;
+      background: #DC2626;
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .filtros button:hover {
+      background: #B91C1C;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      background: white;
+      background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
     }
 
     th, td {
-      padding: 10px;
-      border: 1px solid #ccc;
+      padding: 0.75rem;
+      border: 1px solid #e5e7eb;
       text-align: left;
+      font-size: 0.85rem;
     }
 
     th {
-      background-color: #007bff;
-      color: white;
-    }
-
-    .acoes {
-      margin-top: 20px;
-      text-align: center;
-    }
-
-    .acoes button {
-      padding: 10px 15px;
-      margin: 0 10px;
-      font-size: 14px;
-      cursor: pointer;
+      background: linear-gradient(90deg, #F97316, #DC2626);
+      color: #fff;
+      font-weight: 600;
     }
 
     .deposito {
-      background-color: #d4edda;
+      background-color: rgba(16, 185, 129, 0.1);
+      color: #10b981;
     }
 
     .saque {
-      background-color: #f8d7da;
+      background-color: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+    }
+
+    .acoes {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .acoes button {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      background: #FBBF24;
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .acoes button:hover {
+      background: #D97706;
+    }
+
+    @media (max-width: 768px) {
+      .filtros {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .filtros input, .filtros select, .filtros button {
+        width: 100%;
+      }
     }
   </style>
 </head>
 <body>
-  <img src="https://i.ibb.co/d4HfDzg3/aa542b7bbdbd147857a3df8059f7bc22.webp" alt="Descrição" style="display: block; margin: auto; width: 100px;">
-  <h1 style="color: #ffffff;">Relatório Bancário</h1>
+  <header>
+    <h1>Relatório Bancário - Festa Junina</h1>
+  </header>
 
-  <div class="filtros">
-    <input type="text" id="filtro-nome" placeholder="Filtrar por nome" />
-    <select id="filtro-tipo">
-      <option value="">Todos os tipos</option>
-      <option value="Depósito">Depósito</option>
-      <option value="Saque">Saque</option>
-    </select>
-    <input type="date" id="filtro-data" />
-    <button onclick="filtrar()">Aplicar Filtros</button>
-  </div>
+  <div class="container">
+    
+    <div class="card">
+      <div class="filtros">
+        <input type="text" id="filtro-autor" placeholder="Filtrar por responsável" />
+        <select id="filtro-tipo">
+          <option value="">Todos os tipos</option>
+          <option value="Venda">Venda</option>
+          <option value="Depósito">Depósito</option>
+          <option value="Saque">Saque</option>
+        </select>
+        <input type="date" id="filtro-data" />
+        <button onclick="filtrar()">Aplicar Filtros</button>
+      </div>
 
-  <table id="tabela-extrato">
-    <thead>
-      <tr>
-        <th>Data</th>
-        <th>Tipo</th>
-        <th>Valor</th>
-        <th>Descrição</th>
-        <th>Responsável</th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- conteúdo será inserido via JavaScript -->
-    </tbody>
-  </table>
+      <table id="tabela-extrato">
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Tipo</th>
+            <th>Valor</th>
+            <th>Descrição</th>
+            <th>Responsável</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- conteúdo será inserido via JavaScript -->
+        </tbody>
+      </table>
 
-  <div class="acoes">
-    <button onclick="window.print()">🖨️ Imprimir</button>
-    <button onclick="exportarCSV()">📥 Exportar CSV</button>
+      <div class="acoes">
+        <button onclick="window.print()">🖨️ Imprimir</button>
+        <button onclick="exportarCSV()">📥 Exportar CSV</button>
+      </div>
+    </div>
   </div>
 
   <!-- Firebase -->
@@ -128,44 +251,42 @@
       tbody.innerHTML = "";
       dados.forEach(item => {
         const tr = document.createElement("tr");
-        tr.className = item.tipo === "Depósito" ? "deposito" : "saque";
+        tr.className = item.tipo === "Saque" ? "saque" : "deposito";
         tr.innerHTML = `
           <td>${item.data}</td>
           <td>${item.tipo}</td>
           <td>${parseFloat(item.valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
           <td>${item.descricao}</td>
-          <td>${item.nome}</td>
+          <td>${item.autor}</td>
         `;
         tbody.appendChild(tr);
       });
     }
 
     function filtrar() {
-      const nome = document.getElementById("filtro-nome").value.toLowerCase();
+      const autor = document.getElementById("filtro-autor").value.toLowerCase();
       const tipo = document.getElementById("filtro-tipo").value;
       const data = document.getElementById("filtro-data").value;
 
       const filtrado = extrato.filter(item => {
-        const nomeMatch = !nome || item.nome.toLowerCase().includes(nome);
+        const autorMatch = !autor || (item.autor && item.autor.toLowerCase().includes(autor));
         const tipoMatch = !tipo || item.tipo === tipo;
         const dataMatch = !data || item.data.startsWith(data.split('-').reverse().join('/'));
-        return nomeMatch && tipoMatch && dataMatch;
+        return autorMatch && tipoMatch && dataMatch;
       });
 
       exibirTabela(filtrado);
     }
 
     function exportarCSV() {
-let csv = "data;tipo;descrição;valor;usuário\n";
+      let csv = "data;tipo;descrição;valor;responsável\n";
       extrato.forEach(item => {
         const data = item.data || "";
         const tipo = item.tipo || "";
         const descricao = (item.descricao || "").replace(/"/g, '""');
         const valor = parseFloat(item.valor || 0).toFixed(2).replace(".", ",");
-        const usuario = (item.nome || "").replace(/"/g, '""');
-        const observacao = ""; // Adapte se usar campo de observação
-
-csv += `"${data}";"${tipo}";"${descricao}";"${valor}";"${usuario}"\n`;
+        const autor = (item.autor || "").replace(/"/g, '""');
+        csv += `"${data}";"${tipo}";"${descricao}";"${valor}";"${autor}"\n`;
       });
 
       const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
