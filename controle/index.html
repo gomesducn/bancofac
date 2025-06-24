@@ -230,7 +230,7 @@
       <label for="manter-conectado">Manter conectado</label>
     </div>
 
-<button class="login-btn" onclick="confirmar()">Entrar</button>
+    <button class="login-btn" onclick="confirmarLogin()">Entrar</button>
   </div>
 
   <div class="social-icons">
@@ -269,17 +269,17 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <script>
     const firebaseConfig = {
-      apiKey: "AIzaSyCFx7YYsI0jS2tN3sMtOUMaNHJSIONX6A",
-      authDomain: "bancofex-2aa1d.firebaseapp.com",
-      databaseURL: "https://bancofax-2aa1d-default-rtdb.firebaseio.com/",
-      projectId: "bancofax-2aa1d"
+      apiKey: "AIzaSyCFx7YYsI0jS2tN3sMtOUMRaNHJSIONX6A",
+      authDomain: "bancofac-2aa1d.firebaseapp.com",
+      databaseURL: "https://bancofac-2aa1d-default-rtdb.firebaseio.com/",
+      projectId: "bancofac-2aa1d"
     };
     firebase.initializeApp(firebaseConfig);
 
-    function confirmar() {
-      const nome = document.getElementById("login-id").value.trim();
+    function confirmarLogin() {
+      const nome = document.getElementById("login-nome").value.trim();
       const senha = document.getElementById("login-senha").value.trim();
-      const email = `${nome}@bancofax.com`;
+      const email = `${nome}@bancofac.com`;
 
       firebase.auth().signInWithEmailAndPassword(email, senha)
         .then(() => {
