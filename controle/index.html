@@ -17,21 +17,77 @@
       background: linear-gradient(135deg, #1f1c2c, #939dc7);
       font-family: 'Raleway', sans-serif;
       position: relative;
+      overflow: hidden;
+    }
+
+    /* Varal de bandeirinhas */
+    .bandeirinhas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 60px;
+      display: flex;
+      justify-content: space-between;
+      z-index: 1;
+    }
+
+    .bandeirinha {
+      width: 30px;
+      height: 40px;
+      clip-path: polygon(0 0, 100% 0, 50% 100%);
+      margin: 0 5px;
+      animation: balancar 2s ease-in-out infinite alternate;
+    }
+
+    .bandeirinha:nth-child(3n) { background: #ffeb3b; }
+    .bandeirinha:nth-child(3n+1) { background: #f44336; }
+    .bandeirinha:nth-child(3n+2) { background: #4caf50; }
+
+    @keyframes balancar {
+      from { transform: rotate(5deg); }
+      to { transform: rotate(-5deg); }
     }
 
     .login-box {
-      background: #fff;
+      background: #fff url('https://www.transparenttextures.com/patterns/wood-pattern.png') repeat;
       padding: 50px 40px;
       border-radius: 12px;
       box-shadow: 0 15px 25px rgba(0,0,0,0.3);
       width: 380px;
       text-align: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Elementos decorativos juninos */
+    .login-box::before,
+    .login-box::after {
+      content: '';
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      background-size: contain;
+      opacity: 0.7;
+    }
+
+    .login-box::before {
+      background: url('https://img.icons8.com/color/48/000000/corn.png') no-repeat center;
+      top: -25px;
+      left: -25px;
+    }
+
+    .login-box::after {
+      background: url('https://img.icons8.com/color/48/000000/campfire.png') no-repeat center;
+      bottom: -25px;
+      right: -25px;
     }
 
     .login-box h1 {
       font-size: 50px;
       margin: 0 0 10px 0;
       color: #333;
+      text-shadow: 1px 1px 2px rgba(255, 152, 0, 0.5);
     }
 
     .login-box h2 {
@@ -56,7 +112,7 @@
       margin-top: 15px;
       border: none;
       border-radius: 6px;
-      background: linear-gradient(90deg, #4f46e5, #33b0ea);
+      background: linear-gradient(90deg, #ff5722, #ffc107);
       color: #fff;
       font-weight: bold;
       cursor: pointer;
@@ -87,6 +143,7 @@
       display: flex;
       flex-direction: column;
       gap: 15px;
+      z-index: 2;
     }
 
     .social-icon-btn {
@@ -114,9 +171,39 @@
       height: 24px;
       fill: white;
     }
+
+    @media (max-width: 480px) {
+      .login-box {
+        width: 90%;
+        padding: 30px 20px;
+      }
+      .social-icons {
+        right: 10px;
+      }
+      .bandeirinhas {
+        height: 40px;
+      }
+      .bandeirinha {
+        width: 20px;
+        height: 30px;
+      }
+    }
   </style>
 </head>
 <body>
+
+  <div class="bandeirinhas">
+    <div class="bandeirinha"></div>
+    <div class="bandeirinha"></div>
+    <div class="bandeirinha"></div>
+    <div class="bandeirinha"></div>
+    <div class="bandeirinha"></div>
+    <div class="bandeirinha"></div>
+    <div class="bandeirinha"></div>
+    <div class="bandeirinha"></div>
+    <div class="bandeirinha"></div>
+    <div class="bandeirinha"></div>
+  </div>
 
   <div class="login-box">
     <h1>Marcone</h1>
