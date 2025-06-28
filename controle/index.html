@@ -263,33 +263,62 @@
     Desenvolvido by Gomes &hearts;
   </footer>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyCFx7YYsI0jS2tN3sMtOUMRaNHJSIONX6A",
-      authDomain: "bancofac-2aa1d.firebaseapp.com",
-      databaseURL: "https://bancofac-2aa1d-default-rtdb.firebaseio.com/",
-      projectId: "bancofac-2aa1d"
-    };
-    firebase.initializeApp(firebaseConfig);
+<!-- Firebase SDKs compatíveis -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script>
+  // Configuração do Firebase (bancosix-77da5)
+  const firebaseConfig = {
+    apiKey: "AIzaSyBWhqxcnMwiDehFYhFBberB36Yenyg59Nc",
+    authDomain: "bancosix-77da5.firebaseapp.com",
+    projectId: "bancosix-77da5",
+    storageBucket: "bancosix-77da5.firebasestorage.app",
+    messagingSenderId: "498206142645",
+    appId: "1:498206142645:web:8bd36c2c0d1d0474034efc",
+    measurementId: "G-NGTRPKB2R8",
+    databaseURL: "https://bancosix-77da5-default-rtdb.firebaseio.com/"
+  };
 
-    function confirmarLogin() {
-      const nome = document.getElementById("login-nome").value.trim();
-      const senha = document.getElementById("login-senha").value.trim();
-      const email = `${nome}@bancofac.com`;
+  // Inicializar Firebase
+  firebase.initializeApp(firebaseConfig);
 
-      firebase.auth().signInWithEmailAndPassword(email, senha)
-        .then(() => {
-          window.location = "controle.html";
-        })
-        .catch(err => {
-          console.error(err);
-          alert("Usuário ou senha inválidos.");
+  // Função de login
+  function confirmarLogin() {
+    const nome = document.getElementById("login-nome").value.trim();
+    const senha = document.getElementById("login-senha").value.trim();
+    const manterConectado = document.getElementById("manter-conectado").checked;
+
+    const email = `${nome}@bancosix.com`;
+
+    const persistence = manterConectado 
+      ? firebase.auth.Auth.Persistence.LOCAL 
+      : firebase.auth.Auth.Persistence.SESSION;
+
+    // Definir persistência (manter conectado ou não)
+    firebase.auth().setPersistence(persistence)
+      .then(() => {
+        return firebase.auth().signInWithEmailAndPassword(email, senha);
+      })
+      .then(userCredential => {
+        // Registrar login no Realtime Database
+        const uid = userCredential.user.uid;
+        const dataHora = new Date().toISOString();
+
+        firebase.database().ref(`logins/${uid}`).push({
+          email: email,
+          dataHora: dataHora
         });
-    }
-  </script>
+
+        // Redirecionar após login
+        window.location = "controle.html";
+      })
+      .catch(error => {
+        console.error(error);
+        alert("Usuário ou senha inválidos.");
+      });
+  }
+</script>
+
 </body>
 </html>
