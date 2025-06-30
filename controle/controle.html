@@ -9,59 +9,18 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { 
-    font-family: Arial, sans-serif; 
-    background-image: url(https://www.transparenttextures.com/patterns/checkered-pattern.png);
-    background-blend-mode: overlay;
-    background-color: rgb(116 116 116 / 95%);
-      color: #1f2937; 
-    }
+    body { font-family: Arial, sans-serif; background: #f3f4f6; color: #1f2937; }
     header {
-      background: #fffbe6; /* Tom amarelado para lembrar palha */
-      border-bottom: 1px solid #e5e7eb;
-      padding: 1rem 2rem; 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center;
-      position: sticky; 
-      top: 0; 
-      z-index: 10;
+      background: #fff; border-bottom: 1px solid #e5e7eb;
+      padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center;
+      position: sticky; top: 0; z-index: 10;
     }
-    header h1 { 
-      font-size: 1.25rem; 
-      font-weight: 600; 
-      color: #7c2d12; /* Marrom rústico */
-    }
-    .container { 
-      max-width: 1200px; 
-      margin: 2rem auto; 
-      padding: 0 1rem; 
-    }
+    header h1 { font-size: 1.25rem; font-weight: 600; }
+    .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
     .saldo-card {
-      background: linear-gradient(90deg, #ea580c, #facc15); /* Cores juninas: laranja e amarelo */
-      color: #fff; 
-      border-radius: 12px; 
-      padding: 2rem; 
-      text-align: center;
+      background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+      color: #fff; border-radius: 12px; padding: 2rem; text-align: center;
       margin-bottom: 2rem;
-      position: relative;
-      overflow: hidden;
-    }
-    .saldo-card::before {
-      content: '🌽'; /* Emoji de milho */
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      font-size: 2rem;
-      opacity: 0.3;
-    }
-    .saldo-card::after {
-      content: '🔥'; /* Emoji de fogueira */
-      position: absolute;
-      bottom: 10px;
-      right: 10px;
-      font-size: 2rem;
-      opacity: 0.3;
     }
     .main {
       display: grid;
@@ -70,163 +29,41 @@
       margin-bottom: 2rem;
     }
     .card {
-      background: #fffdf0; /* Fundo creme para um toque rústico */
-      border-radius: 12px; 
-      padding: 1.5rem;
+      background: #fff; border-radius: 12px; padding: 1.5rem;
       box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-      border: 1px solid #fed7aa; /* Borda laranja clara */
     }
-    .form-group { 
-      margin-bottom: 1rem; 
-    }
-    .form-group label { 
-      display: block; 
-      margin-bottom: 0.25rem; 
-      font-size: 0.875rem; 
-      color: #7c2d12; 
-    }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; margin-bottom: 0.25rem; font-size: 0.875rem; }
     .form-group input, .form-group select {
-      width: 100%; 
-      padding: 0.5rem; 
-      border: 1px solid #fed7aa; 
-      border-radius: 8px;
-      background: #fff;
+      width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 8px;
     }
     .btn-primary, .btn-secondary {
-      padding: 0.75rem; 
-      border: none; 
-      border-radius: 8px; 
-      cursor: pointer;
-      font-weight: 600; 
-      font-size: 0.875rem;
+      padding: 0.75rem; border: none; border-radius: 8px; cursor: pointer;
+      font-weight: 600; font-size: 0.875rem;
     }
-    .btn-primary { 
-      background: #7c2d12; /* Marrom rústico */
-      color: #fff; 
-      width: 100%; 
-    }
-    .btn-secondary { 
-      background: #ea580c; /* Laranja junino */
-      color: #fff; 
-      margin-left: 0.5rem; 
-    }
-    .extrato-lista { 
-      max-height: 300px; 
-      overflow-y: auto; 
-      margin-top: 1rem; 
-    }
+    .btn-primary { background: #111827; color: #fff; width: 100%; }
+    .btn-secondary { background: #3b82f6; color: #fff; margin-left: 0.5rem; }
+    .extrato-lista { max-height: 300px; overflow-y: auto; margin-top: 1rem; }
     .extrato-item {
-      border-bottom: 1px solid #fed7aa; 
-      padding: 0.75rem 0;
-      font-size: 0.85rem; 
-      display: grid; 
-      grid-template-columns: 1fr 2fr 1fr 2fr 1fr;
-      gap: 0.5rem; 
-      align-items: center;
+      border-bottom: 1px solid #e5e7eb; padding: 0.75rem 0;
+      font-size: 0.85rem; display: grid; grid-template-columns: 1fr 2fr 1fr 2fr 1fr;
+      gap: 0.5rem; align-items: center;
     }
-    .extrato-item:last-child { 
-      border: none; 
-    }
-    .valor-negativo { 
-      color: #dc2626; 
-    }
-    .valor-positivo { 
-      color: #15803d; 
-    }
-    .filtros { 
-      display: flex; 
-      gap: 1rem; 
-      margin-bottom: 1rem; 
-      align-items: center; 
-      flex-wrap: wrap; 
-    }
+    .extrato-item:last-child { border: none; }
+    .valor-negativo { color: #ef4444; }
+    .valor-positivo { color: #10b981; }
+    .filtros { display: flex; gap: 1rem; margin-bottom: 1rem; align-items: center; flex-wrap: wrap; }
     #graficoVendas {
       width: 100%;
       height: 500px !important;
-      background: #fffdf0;
+      background: #fff;
       border-radius: 8px;
       padding: 1rem;
-      border: 1px solid #fed7aa;
     }
-    #usuario-logado { 
-      margin-bottom: 1rem; 
-      font-weight: bold; 
-      color: #7c2d12; 
-    }
-    /* Varal de bandeirinhas */
-    .bandeirinhas {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 50px;
-      overflow: hidden;
-      z-index: 5;
-    }
-    .bandeira {
-      position: absolute;
-      width: 40px;
-      height: 30px;
-      clip-path: polygon(0 0, 100% 0, 50% 100%);
-      transform: translateY(-50%);
-    }
-    .bandeira:nth-child(odd) { 
-      background: #facc15; /* Amarelo */
-    }
-    .bandeira:nth-child(even) { 
-      background: #16a34a; /* Verde */
-    }
-    .cordao {
-      position: absolute;
-      top: 15px;
-      left: 0;
-      width: 100%;
-      height: 2px;
-      background: #7c2d12; /* Cordão marrom */
-      z-index: 4;
-    }
-  footer {
-    position: fixed;
-    bottom: 10px;
-    width: 100%;
-    text-align: center;
-    color: #fff;
-    font-size: 14px;
-    z-index: 2;
-  }
-
-  @media (max-width: 480px) {
-    footer {
-      font-size: 12px;
-    }
-  }
+    #usuario-logado { margin-bottom: 1rem; font-weight: bold; color: #4b5563; }
   </style>
 </head>
 <body>
-
-<div class="bandeirinhas">
-  <div class="cordao"></div>
-  <div class="bandeira" style="left: 0px;"></div>
-  <div class="bandeira" style="left: 30px;"></div>
-  <div class="bandeira" style="left: 60px;"></div>
-  <div class="bandeira" style="left: 90px;"></div>
-  <div class="bandeira" style="left: 120px;"></div>
-  <div class="bandeira" style="left: 150px;"></div>
-  <div class="bandeira" style="left: 180px;"></div>
-  <div class="bandeira" style="left: 210px;"></div>
-  <div class="bandeira" style="left: 240px;"></div>
-  <div class="bandeira" style="left: 270px;"></div>
-  <div class="bandeira" style="left: 300px;"></div>
-  <div class="bandeira" style="left: 330px;"></div>
-  <div class="bandeira" style="left: 360px;"></div>
-  <div class="bandeira" style="left: 390px;"></div>
-  <div class="bandeira" style="left: 420px;"></div>
-  <div class="bandeira" style="left: 450px;"></div>
-  <div class="bandeira" style="left: 480px;"></div>
-  <div class="bandeira" style="left: 510px;"></div>
-  <div class="bandeira" style="left: 540px;"></div>
-  <div class="bandeira" style="left: 570px;"></div>
-</div>
 
 <header>
   <h1>Painel de Controle Financeiro</h1>
@@ -268,7 +105,7 @@
       <div class="extrato-lista" id="extrato-lista"></div>
       <div style="margin-top: 1rem; display: flex; justify-content: flex-end;">
         <button class="btn-secondary" onclick="limparHistorico()">🗑 Limpar</button>
-        <button class="btn-secondary" onclick="window.open('relatorio.html', '_blank')">📄 Ver Relatório</button>
+        <button class="btn-secondary" onclick="location.href='relatorio.html'">📄 Ver Relatório</button>
       </div>
     </div>
   </div>
@@ -286,21 +123,14 @@
     <div id="total-filtrado"></div>
   </div>
 </div>
-  <footer>
-    Desenvolvido by Gomes &hearts;
-  </footer>
+
 <script>
   const firebaseConfig = {
-    apiKey: "AIzaSyBWhqxcnMwiDehFYhFBberB36Yenyg59Nc",
-    authDomain: "bancosix-77da5.firebaseapp.com",
-    projectId: "bancosix-77da5",
-    storageBucket: "bancosix-77da5.firebasestorage.app",
-    messagingSenderId: "498206142645",
-    appId: "1:498206142645:web:8bd36c2c0d1d0474034efc",
-    measurementId: "G-NGTRPKB2R8",
-    databaseURL: "https://bancosix-77da5-default-rtdb.firebaseio.com/"
+    apiKey: "AIzaSyCFx7YYsI0jS2tN3sMtOUMRaNHJSIONX6A",
+    authDomain: "bancofac-2aa1d.firebaseapp.com",
+    databaseURL: "https://bancofac-2aa1d-default-rtdb.firebaseio.com/",
+    projectId: "bancofac-2aa1d"
   };
-
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
 
@@ -341,7 +171,7 @@
     extrato.slice(0, 6).forEach(m => {
       const div = document.createElement('div');
       div.className = 'extrato-item';
-      div.innerHTML = 
+      div.innerHTML = `
         <div>${m.tipo}</div>
         <div>${m.descricao}</div>
         <div>${m.autor}</div>
@@ -349,7 +179,7 @@
         <div class="${m.tipo === 'Saque' ? 'valor-negativo' : 'valor-positivo'}">
           ${m.tipo === 'Saque' ? '-' : ''}${formatar(m.valor)}
         </div>
-      ;
+      `;
       box.appendChild(div);
     });
   }
@@ -398,9 +228,9 @@
     const fimMesPassado = new Date(agora.getFullYear(), agora.getMonth(), 0);
 
     let periodo = prompt(
-      De qual período você deseja visualizar as transações para excluir?\n\n +
-      1 - De 01/06/2025 até ${agora.toLocaleDateString('pt-BR')}\n +
-      2 - Mês Passado (${inicioMesPassado.toLocaleDateString('pt-BR')} até ${fimMesPassado.toLocaleDateString('pt-BR')})
+      `De qual período você deseja visualizar as transações para excluir?\n\n` +
+      `1 - De 01/06/2025 até ${agora.toLocaleDateString('pt-BR')}\n` +
+      `2 - Mês Passado (${inicioMesPassado.toLocaleDateString('pt-BR')} até ${fimMesPassado.toLocaleDateString('pt-BR')})`
     );
 
     let extratoFiltrado = [];
@@ -410,7 +240,7 @@
       let data;
       const partes = dataString.split(',')[0].split('/');
       if (partes.length === 3 && partes[2].length === 4) {
-        data = new Date(${partes[2]}-${partes[1]}-${partes[0]});
+        data = new Date(`${partes[2]}-${partes[1]}-${partes[0]}`);
       } else if (!isNaN(Date.parse(dataString))) {
         data = new Date(dataString);
       } else {
@@ -438,10 +268,10 @@
     }
 
     let lista = extratoFiltrado.map((item, idx) => {
-      return ${idx + 1} – ${item.tipo} – ${item.descricao} – ${formatar(item.valor)} – ${item.autor} – ${item.data};
+      return `${idx + 1} – ${item.tipo} – ${item.descricao} – ${formatar(item.valor)} – ${item.autor} – ${item.data}`;
     }).join('\n');
 
-    let escolha = prompt(Escolha o número da transação que deseja excluir:\n\n${lista});
+    let escolha = prompt(`Escolha o número da transação que deseja excluir:\n\n${lista}`);
     let indexEscolhido = parseInt(escolha) - 1;
 
     if (isNaN(indexEscolhido) || indexEscolhido < 0 || indexEscolhido >= extratoFiltrado.length) {
@@ -494,7 +324,7 @@
 
     extrato.filter(e => tiposSelecionados.includes(e.tipo)).forEach(e => {
       const partesData = e.data.split(',')[0].split('/');
-      const d = new Date(${partesData[2]}-${partesData[1]}-${partesData[0]});
+      const d = new Date(`${partesData[2]}-${partesData[1]}-${partesData[0]}`);
       if (d < start || d > end) return;
 
       const key = e.data.split(',')[0];
@@ -517,9 +347,9 @@
       data: {
         labels,
         datasets: [{
-          label: Total por Dia (${tiposSelecionados.join(' + ')}),
+          label: `Total por Dia (${tiposSelecionados.join(' + ')})`,
           data,
-          backgroundColor: data.map(valor => valor >= 0 ? '#16a34a' : '#dc2626') /* Verde e vermelho juninos */
+          backgroundColor: data.map(valor => valor >= 0 ? '#3b82f6' : '#ef4444')
         }]
       },
       options: {
@@ -548,7 +378,7 @@
       }
     });
 
-    document.getElementById('total-filtrado').innerText = Total no Período: ${formatar(totalFiltrado)};
+    document.getElementById('total-filtrado').innerText = `Total no Período: ${formatar(totalFiltrado)}`;
   }
 
   function logout() {
