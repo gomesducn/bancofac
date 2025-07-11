@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Calculadora de Lucro e Comissão</title>
+  <style>
+    /* Reset básico */
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #121212;
+      color: #fff;
+    }
+
+    header {
+      background: #c62828; /* vermelho */
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: bold;
+      font-size: 1.1rem;
+      color: #000;
+    }
+
+    header button {
+      background: #fff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    header button:hover {
+      background: #f44336;
+      color: #fff;
+    }
+
+    main {
+      max-width: 600px;
+      margin: 30px auto;
+      background: #1e1e1e;
+      padding: 25px 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(198, 40, 40, 0.7);
+    }
+
+    h2 {
+      margin-top: 0;
+      margin-bottom: 25px;
+      color: #f44336;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 10px 14px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      border: none;
+      font-size: 1rem;
+      background-color: #2b2b2b;
+      color: #fff;
+      transition: background-color 0.3s ease;
+    }
+
+    input[type="number"]:focus {
+      background-color: #3d3d3d;
+      outline: none;
+    }
+
+    input[readonly] {
+      background-color: #3d3d3d;
+      cursor: not-allowed;
+    }
+
+    .result {
+      background: #c62828;
+      padding: 20px;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 1.2rem;
+      font-weight: 600;
+      line-height: 1.5;
+      box-shadow: 0 0 10px rgba(198, 40, 40, 0.8);
+    }
+
+  </style>
+</head>
+<body>
+
+  <header>
+    <div>Calculadora de Lucro e Comissão</div>
+<button onclick="window.location.href='http://banco.marcone.store/controle/controle.html'">← Voltar</button>
+
+  </header>
+
+  <main>
+    <h2>Informe os dados abaixo:</h2>
+
+    <label for="quantidadeCaixas">Quantidade de caixas vendidas:</label>
+    <input type="number" id="quantidadeCaixas" min="1" value="50" />
+
+    <label for="valorCaixa">Valor por caixa (R$):</label>
+    <input type="number" id="valorCaixa" min="1" value="5000" />
+
+    <label for="custoProducaoCaixa">Custo de produção por caixa (R$):</label>
+    <input type="number" id="custoProducaoCaixa" value="1250" readonly />
+
+    <div class="result" id="resultado">
+      <p><strong>Valor total da venda:</strong> R$ 0,00</p>
+      <p><strong>Comissão do gerente (25%):</strong> R$ 0,00</p>
+      <p><strong>Lucro líquido da facção:</strong> R$ 0,00</p>
+    </div>
+  </main>
+
+  <script>
+    const qtdInput = document.getElementById('quantidadeCaixas');
+    const valorInput = document.getElementById('valorCaixa');
+    const custoInput = document.getElementById('custoProducaoCaixa');
+    const resultadoDiv = document.getElementById('resultado');
+
+    function formatBRL(num) {
+      return num.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+
+    function calcular() {
+      const qtd = Number(qtdInput.value);
+      const valorCaixa = Number(valorInput.value);
+      const custoCaixa = Number(custoInput.value);
+
+      const valorTotalVenda = qtd * valorCaixa;
+      const custoTotalProducao = qtd * custoCaixa;
+      const comissaoGerente = valorTotalVenda * 0.25;
+      const lucroLiquido = valorTotalVenda - custoTotalProducao - comissaoGerente;
+
+      resultadoDiv.innerHTML = `
+        <p><strong>Valor total da venda:</strong> ${formatBRL(valorTotalVenda)}</p>
+        <p><strong>Comissão do gerente (25%):</strong> ${formatBRL(comissaoGerente)}</p>
+        <p><strong>Lucro líquido da facção:</strong> ${formatBRL(lucroLiquido)}</p>
+      `;
+    }
+
+    qtdInput.addEventListener('input', calcular);
+    valorInput.addEventListener('input', calcular);
+
+    // Calcular na carga inicial
+    calcular();
+  </script>
+
+</body>
+</html>
