@@ -2,8 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Bolotas - Controle Financeiro</title>
-    <link rel="icon" href="http://banco.marcone.store/controle/bolotas.ico" type="image/x-icon">
+  <title>Painel de Controle Financeiro</title>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
@@ -142,6 +141,8 @@ header {
   <select id="tipo-venda" onchange="atualizarValorCalculado()">
     <option value="parceria">Parceria</option>
     <option value="semParceria">Sem Parceria</option>
+      <option value="Depósito">Depósito</option>
+  <option value="Saque">Saque</option>
   </select>
 </div>
 
@@ -149,6 +150,8 @@ header {
   <label>Item:</label>
   <select id="item-transacao" onchange="atualizarValorCalculado()">
     <option value="" disabled selected>Selecione o item</option>
+    <option value="Depósito">Depósito</option>
+    <option value="Saque">Saque</option>
     <option value="Algema">Algema</option>
     <option value="Capuz">Capuz</option>
     <option value="C4">C4</option>
@@ -191,8 +194,8 @@ header {
 </div>
 
   <div class="form-group">
-    <label>Facção:</label>
-    <input type="text" id="descricao" placeholder="Nome da facção">
+    <label>Facção/Descrição:</label>
+    <input type="text" id="descricao" placeholder="Nome da facção/Descrição">
   </div>
 
   <button class="btn-primary" onclick="confirmarMovimentacao()">Adicionar Transação</button>
@@ -205,7 +208,7 @@ header {
 <div class="extrato-item" style="font-weight: bold; border-bottom: 2px solid #ccc;">
   <center><div>Tipo</div></center>
  <center> <div>Item</div></center>
- <center> <div>Facção</div></center>
+ <center> <div>Facção/Descrição</div></center>
   <center><div>Quantidade</div></center>
   <center><div>Usuário</div></center>
   <center><div>Data</div></center>
@@ -308,26 +311,44 @@ function confirmarMovimentacao() {
   const valor = parseFloat(valorStr.replace('R$', '').replace(/\./g, '').replace(',', '.').trim());
   const descricao = document.getElementById('descricao').value;
   const item = document.getElementById('item-transacao').value;
-  const quantidade = parseInt(document.getElementById('quantidade').value);
+let quantidade = 1;
+if (tipoVenda !== 'Depósito' && tipoVenda !== 'Saque') {
+  quantidade = parseInt(document.getElementById('quantidade').value);
+  if (isNaN(quantidade) || quantidade <= 0) {
+    return alert("Quantidade inválida.");
+  }
+}
+
 
   if (!usuarioLogado) return alert('Usuário não autenticado. Faça login novamente.');
   if (!item) return alert("Selecione um item.");
   if (isNaN(valor) || valor <= 0) return alert("Valor inválido.");
-  if (isNaN(quantidade) || quantidade <= 0) return alert("Quantidade inválida.");
+if ((tipoVenda !== 'Depósito' && tipoVenda !== 'Saque') && (isNaN(quantidade) || quantidade <= 0)) {
+  return alert("Quantidade inválida.");
+}
+
+  
 
   const autor = usuarioLogado.displayName || usuarioLogado.email.split('@')[0];
 
+// Corrige o saldo com base no tipo
+if (tipoVenda === 'Saque') {
+  saldo -= valor;
+} else {
   saldo += valor;
-  extrato.unshift({
-    tipo: 'Venda',
-    item,
-    quantidade,
-    descricao,
-    autor,
-    valor,
-    tipoVenda,
-    data: new Date().toLocaleString('pt-BR')
-  });
+}
+
+extrato.unshift({
+  tipo: tipoVenda, // agora corretamente define 'Saque' ou 'Depósito' etc.
+  item,
+  quantidade,
+  descricao,
+  autor,
+  valor,
+  tipoVenda,
+  data: new Date().toLocaleString('pt-BR')
+});
+
 
   db.ref('controleCaixa').set({ saldo, extrato });
   atualizarSaldo();
@@ -375,19 +396,31 @@ function confirmarMovimentacao() {
     "Pendrive Épico": { parceria: 40000, semParceria: 45000 }
   };
 
-  function atualizarValorCalculado() {
-    const item = document.getElementById('item-transacao').value;
-    const tipo = document.getElementById('tipo-venda').value;
-    const qtd = parseInt(document.getElementById('quantidade').value) || 1;
+function atualizarValorCalculado() {
+  const item = document.getElementById('item-transacao').value;
+  const tipo = document.getElementById('tipo-venda').value;
+  const qtd = parseInt(document.getElementById('quantidade').value) || 1;
 
-    if (item && precosItens[item]) {
-      const precoUnitario = precosItens[item][tipo];
-      const total = precoUnitario * qtd;
-      document.getElementById('valor').value = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-    } else {
-      document.getElementById('valor').value = '';
-    }
+  const valorInput = document.getElementById('valor');
+
+  // Para Depósito ou Saque, permitir valor manual
+  if (tipo === 'Depósito' || tipo === 'Saque') {
+    valorInput.removeAttribute('readonly');
+    valorInput.value = ''; // Limpa se necessário
+    return;
   }
+
+  // Para os demais, calcula automaticamente
+  valorInput.setAttribute('readonly', true);
+  if (item && precosItens[item]) {
+    const precoUnitario = precosItens[item][tipo];
+    const total = precoUnitario * qtd;
+    valorInput.value = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  } else {
+    valorInput.value = '';
+  }
+}
+
     function gerarGrafico() {
     const di = document.getElementById('dataInicio').value;
     const df = document.getElementById('dataFim').value;
