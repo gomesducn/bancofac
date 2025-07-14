@@ -1,592 +1,597 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <title>Bolotas - Controle Financeiro</title>
-    <link rel="icon" href="http://banco.marcone.store/controle/bolotas.ico" type="image/x-icon">
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: Arial, sans-serif; background: #1b1b1b; color: #1a1a1a; }
-header {
-  position: fixed;
-  top: 10px;
-  right: 20px;
-  z-index: 999;
-}
+  <!DOCTYPE html>
+  <html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8">
+    <title>Painel de Controle Financeiro</title>
+        <link rel="icon" href="http://banco.marcone.store/controle/bolotas.ico" type="image/x-icon">
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font-family: Arial, sans-serif; background: #1b1b1b; color: #1a1a1a; }
+  header {
+    position: fixed;
+    top: 10px;
+    right: 20px;
+    z-index: 999;
+  }
 
 
-    header h1 { font-size: 1.25rem; font-weight: 600; }
-    .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
-    .saldo-card {
-      background: linear-gradient(90deg, #c90000, #ffffff, #FF0000);
-      color: #272727; border-radius: 12px; padding: 2rem; text-align: center;
-      margin-bottom: 2rem;
-    }
-    .main {
-      display: grid;
-      grid-template-columns: 1fr 2fr;
-      gap: 2rem;
-      margin-bottom: 2rem;
-    }
-    .card {
-      background: #fff; border-radius: 12px; padding: 1.5rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    }
-    .form-group { margin-bottom: 1rem; }
-    .form-group label { display: block; margin-bottom: 0.25rem; font-size: 0.875rem; }
-    .form-group input, .form-group select {
-      width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 8px;
-    }
-    .btn-primary, .btn-secondary, .btn-tercerary {
-      padding: 0.75rem; border: none; border-radius: 8px; cursor: pointer;
-      font-weight: 600; font-size: 0.875rem;margin-bottom: 5px;
-    }
-    .btn-primary { background: #910101; color: #fff; width: 100%; }
-    .btn-secondary { background: #f63b3b; color: #fff; margin-left: 0.5rem; }
-    .btn-tercerary { background: #ff6a00; color: #fff; width: 100%; }
-    .extrato-lista { max-height: 300px; overflow-y: auto; margin-top: 1rem; }
-.extrato-item {
-  border-bottom: 1px solid #d6d6d6;
-  padding: 0.5rem 0;
-  font-size: 0.85rem;
-  display: grid;
-  grid-template-columns: 0.8fr 1fr 1.2fr 0.8fr 1fr 1.5fr 1fr;
-  gap: 0.25rem;
-  text-align: center;
-  justify-items: center;
-}
-
-    .extrato-item:last-child { border: none; }
-    .valor-negativo { color: #ef4444; }
-    .valor-positivo { color: #10b981; }
-    .filtros { display: flex; gap: 1rem; margin-bottom: 1rem; align-items: center; flex-wrap: wrap; }
-    #graficoVendas {
-      width: 100%;
-      height: 500px !important;
-      background: #fff;
-      border-radius: 8px;
-      padding: 1rem;
-    }
-    #usuario-logado { margin-bottom: 1rem; font-weight: bold; color: #ffffff; }
-    
-
-    footer {
-      margin-top: -5px;
-      bottom: 5px;
-      width: 100%;
-      text-align: center;
-      color: #aaa;
-      font-size: 10px;
-    }
-
-    @media (max-width: 480px) {
-      .login-box {
-        width: 90%;
-        padding: 30px 20px;
+      header h1 { font-size: 1.25rem; font-weight: 600; }
+      .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
+      .saldo-card {
+        background: linear-gradient(90deg, #c90000, #ffffff, #FF0000);
+        color: #272727; border-radius: 12px; padding: 2rem; text-align: center;
+        margin-bottom: 2rem;
       }
-      .social-icons {
-        right: 10px;
+      .main {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
       }
+      .card {
+        background: #fff; border-radius: 12px; padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      }
+      .form-group { margin-bottom: 1rem; }
+      .form-group label { display: block; margin-bottom: 0.25rem; font-size: 0.875rem; }
+      .form-group input, .form-group select {
+        width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 8px;
+      }
+      .btn-primary, .btn-secondary, .btn-tercerary {
+        padding: 0.75rem; border: none; border-radius: 8px; cursor: pointer;
+        font-weight: 600; font-size: 0.875rem;margin-bottom: 5px;
+      }
+      .btn-primary { background: #910101; color: #fff; width: 100%; }
+      .btn-secondary { background: #f63b3b; color: #fff; margin-left: 0.5rem; }
+      .btn-tercerary { background: #ff6a00; color: #fff; width: 100%; }
+      .extrato-lista { max-height: 300px; overflow-y: auto; margin-top: 1rem; }
+  .extrato-item {
+    border-bottom: 1px solid #d6d6d6;
+    padding: 0.5rem 0;
+    font-size: 0.85rem;
+    display: grid;
+    grid-template-columns: 0.8fr 1fr 1.2fr 0.8fr 1fr 1.5fr 1fr;
+    gap: 0.25rem;
+    text-align: center;
+    justify-items: center;
+  }
+
+      .extrato-item:last-child { border: none; }
+      .valor-negativo { color: #ef4444; }
+      .valor-positivo { color: #10b981; }
+      .filtros { display: flex; gap: 1rem; margin-bottom: 1rem; align-items: center; flex-wrap: wrap; }
+      #graficoVendas {
+        width: 100%;
+        height: 500px !important;
+        background: #fff;
+        border-radius: 8px;
+        padding: 1rem;
+      }
+      #usuario-logado { margin-bottom: 1rem; font-weight: bold; color: #ffffff; }
+      
+
       footer {
-        font-size: 12px;
+        margin-top: -5px;
+        bottom: 5px;
+        width: 100%;
+        text-align: center;
+        color: #aaa;
+        font-size: 10px;
       }
-    }
-    .btn-sair {
-  background: linear-gradient(to right, #e52d27, #b31217);
-  color: white;
-  padding: 10px 18px;
-  border: none;
-  border-radius: 8px;
-  font-weight: bold;
-  font-size: 14px;
-  cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-.btn-sair:hover {
-  transform: scale(1.05);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.4);
-}
 
-  </style>
-</head>
-<body>
+      @media (max-width: 480px) {
+        .login-box {
+          width: 90%;
+          padding: 30px 20px;
+        }
+        .social-icons {
+          right: 10px;
+        }
+        footer {
+          font-size: 12px;
+        }
+      }
+      .btn-sair {
+    background: linear-gradient(to right, #e52d27, #b31217);
+    color: white;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .btn-sair:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+  }
 
-<header>
-<button class="btn-sair" onclick="logout()">↩ Sair</button>
-</header>
+    </style>
+  </head>
+  <body>
+
+  <header>
+  <button class="btn-sair" onclick="logout()">↩ Sair</button>
+  </header>
 
 
-<div class="container">
-  <div style="text-align: center; margin-top: 1rem;">
-<img src="https://i.ibb.co/Ps0zPY0g/bolotas.gif" width="140" height="110" alt="Descrição da imagem" style="border-radius: 12px;">
-</div>
-
-  <div id="usuario-logado">Usuário: Carregando...</div>
-
-  <div class="saldo-card">
-    <div>SALDO TOTAL</div>
-    <div id="saldo" style="font-size: 2rem; font-weight: bold;">R$ 0</div>
+  <div class="container">
+    <div style="text-align: center; margin-top: 1rem;">
+  <img src="https://i.ibb.co/Ps0zPY0g/bolotas.gif" width="140" height="110" alt="Descrição da imagem" style="border-radius: 12px;">
   </div>
 
-  <div class="main">
-<div class="card">
-  <center><h2>Nova Transação</h2></center>
-  
-<div class="form-group">
-  <label>Tipo de Venda:</label>
-  <select id="tipo-venda" onchange="atualizarValorCalculado()">
-    <option value="parceria">Parceria</option>
-    <option value="semParceria">Sem Parceria</option>
-      <option value="Depósito">Depósito</option>
-  <option value="Saque">Saque</option>
-  </select>
-</div>
+    <div id="usuario-logado">Usuário: Carregando...</div>
 
-<div class="form-group">
-  <label>Item:</label>
-  <select id="item-transacao" onchange="atualizarValorCalculado()">
-    <option value="" disabled selected>Selecione o item</option>
-    <option value="Depósito">Depósito</option>
+    <div class="saldo-card">
+      <div>SALDO TOTAL</div>
+      <div id="saldo" style="font-size: 2rem; font-weight: bold;">R$ 0</div>
+    </div>
+
+    <div class="main">
+  <div class="card">
+    <center><h2>Nova Transação</h2></center>
+    
+  <div class="form-group">
+    <label>Tipo de Venda:</label>
+    <select id="tipo-venda" onchange="atualizarValorCalculado()">
+      <option value="parceria">Parceria</option>
+      <option value="semParceria">Sem Parceria</option>
+        <option value="Depósito">Depósito</option>
     <option value="Saque">Saque</option>
-    <option value="Algema">Algema</option>
-    <option value="Capuz">Capuz</option>
-    <option value="C4">C4</option>
-    <option value="Colete">Colete</option>
-    <option value="Álcool">Álcool</option>
-    <option value="Pente Estendido PT">Pente Estendido PT</option>
-    <option value="Pente Estendido SMG">Pente Estendido SMG</option>
-    <option value="Pente Estendido Rifle">Pente Estendido Rifle</option>
-    <option value="Cano Pesado">Cano Pesado</option>
-    <option value="Compensador Tático">Compensador Tático</option>
-    <option value="Compensador Pesado">Compensador Pesado</option>
-    <option value="Mira">Mira</option>
-    <option value="Lanterna">Lanterna</option>
-    <option value="Cabo">Cabo</option>
-    <option value="Silenciador">Silenciador</option>
-    <option value="Caixa de Attachs">Caixa de Attachs</option>
-    <option value="Cartão Comum">Cartão Comum</option>
-    <option value="Cartão Incomum">Cartão Incomum</option>
-    <option value="Cartão Épico">Cartão Épico</option>
-    <option value="Cartão Raro">Cartão Raro</option>
-    <option value="Cartão Lendário">Cartão Lendário</option>
-    <option value="Caixa Colete">Caixa Colete</option>
-    <option value="Caixa de C4">Caixa de C4</option>
-    <option value="Caixa de Algema">Caixa de Algema</option>
-    <option value="Caixa Alcool">Caixa Alcool</option>
-    <option value="Pendrive Comum">Pendrive Comum</option>
-    <option value="Pendrive Raro">Pendrive Raro</option>
-    <option value="Pendrive Épico">Pendrive Épico</option>
-  </select>
-</div>
-
-<div class="form-group">
-  <label>Quantidade:</label>
-<input type="number" id="quantidade"placeholder="Digite a quantidade" oninput="atualizarValorCalculado()">
-</div>
-
-<div class="form-group">
-  <label>Valor Total:</label>
-  <input type="text" id="valor"placeholder="Valor automatizado" readonly>
-</div>
+    </select>
+  </div>
 
   <div class="form-group">
-    <label>Facção/Descrição:</label>
-    <input type="text" id="descricao" placeholder="Nome da facção/Descrição">
+    <label>Item:</label>
+    <select id="item-transacao" onchange="atualizarValorCalculado()">
+      <option value="" disabled selected>Selecione o item</option>
+      <option value="Depósito">Depósito</option>
+      <option value="Saque">Saque</option>
+      <option value="Algema">Algema</option>
+      <option value="Capuz">Capuz</option>
+      <option value="C4">C4</option>
+      <option value="Colete">Colete</option>
+      <option value="Álcool">Álcool</option>
+      <option value="Pente Estendido PT">Pente Estendido PT</option>
+      <option value="Pente Estendido SMG">Pente Estendido SMG</option>
+      <option value="Pente Estendido Rifle">Pente Estendido Rifle</option>
+      <option value="Cano Pesado">Cano Pesado</option>
+      <option value="Compensador Tático">Compensador Tático</option>
+      <option value="Compensador Pesado">Compensador Pesado</option>
+      <option value="Mira">Mira</option>
+      <option value="Lanterna">Lanterna</option>
+      <option value="Cabo">Cabo</option>
+      <option value="Silenciador">Silenciador</option>
+      <option value="Caixa de Attachs">Caixa de Attachs</option>
+      <option value="Cartão Comum">Cartão Comum</option>
+      <option value="Cartão Incomum">Cartão Incomum</option>
+      <option value="Cartão Épico">Cartão Épico</option>
+      <option value="Cartão Raro">Cartão Raro</option>
+      <option value="Cartão Lendário">Cartão Lendário</option>
+      <option value="Caixa Colete">Caixa Colete</option>
+      <option value="Caixa de C4">Caixa de C4</option>
+      <option value="Caixa de Algema">Caixa de Algema</option>
+      <option value="Caixa Alcool">Caixa Alcool</option>
+      <option value="Pendrive Comum">Pendrive Comum</option>
+      <option value="Pendrive Raro">Pendrive Raro</option>
+      <option value="Pendrive Épico">Pendrive Épico</option>
+    </select>
   </div>
 
-  <button class="btn-primary" onclick="confirmarMovimentacao()">Adicionar Transação</button>
-</div>
+  <div class="form-group">
+    <label>Quantidade:</label>
+  <input type="number" id="quantidade"placeholder="Digite a quantidade" oninput="atualizarValorCalculado()">
+  </div>
+
+  <div class="form-group">
+    <label>Valor Total:</label>
+    <input type="text" id="valor"placeholder="Valor automatizado" readonly>
+  </div>
+
+    <div class="form-group">
+      <label>Facção/Descrição:</label>
+      <input type="text" id="descricao" placeholder="Nome da facção/Descrição">
+    </div>
+
+    <button class="btn-primary" onclick="confirmarMovimentacao()">Adicionar Transação</button>
+  </div>
 
 
-    <div class="card">
-      <h2>Extrato</h2>
-<!-- Títulos das colunas -->
-<div class="extrato-item" style="font-weight: bold; border-bottom: 2px solid #ccc;">
-  <center><div>Tipo</div></center>
- <center> <div>Item</div></center>
- <center> <div>Facção/Descrição</div></center>
-  <center><div>Quantidade</div></center>
-  <center><div>Usuário</div></center>
-  <center><div>Data</div></center>
-  <center><div>Valor</div></center>
-</div>
+      <div class="card">
+        <h2>Extrato</h2>
+  <!-- Títulos das colunas -->
+  <div class="extrato-item" style="font-weight: bold; border-bottom: 2px solid #ccc;">
+    <center><div>Tipo</div></center>
+  <center> <div>Item</div></center>
+  <center> <div>Facção/Descrição</div></center>
+    <center><div>Quantidade</div></center>
+    <center><div>Usuário</div></center>
+    <center><div>Data</div></center>
+    <center><div>Valor</div></center>
+  </div>
 
 
-<!-- Lista de transações -->
-<div class="extrato-lista" id="extrato-lista"></div>
-      <div style="margin-top: 1rem; display: flex; justify-content: flex-end;">
-        <button class="btn-secondary" onclick="limparHistorico()">🗑 Limpar</button>
-        <button class="btn-secondary" onclick="location.href='relatorio.html'">📄 Ver Relatório</button>
+  <!-- Lista de transações -->
+  <div class="extrato-lista" id="extrato-lista"></div>
+        <div style="margin-top: 1rem; display: flex; justify-content: flex-end;">
+          <button class="btn-secondary" onclick="limparHistorico()">🗑 Limpar</button>
+          <button class="btn-secondary" onclick="location.href='relatorio.html'">📄 Ver Relatório</button>
+        </div>
       </div>
     </div>
-  </div>
 
-  <div class="card">
-    <div class="filtros">
-      <input type="checkbox" id="filtro-venda" checked> <label for="filtro-venda">Vendas</label>
-      <input type="checkbox" id="filtro-deposito" checked> <label for="filtro-deposito">Depósitos</label>
-      <input type="checkbox" id="filtro-saque" checked> <label for="filtro-saque">Saques</label>
-      <input type="date" id="dataInicio">
-      <input type="date" id="dataFim">
-      <button class="btn-secondary" onclick="gerarGrafico()">🗓 Filtrar Gráfico</button>
+    <div class="card">
+      <div class="filtros">
+        <input type="checkbox" id="filtro-venda" checked> <label for="filtro-venda">Vendas</label>
+        <input type="checkbox" id="filtro-deposito" checked> <label for="filtro-deposito">Depósitos</label>
+        <input type="checkbox" id="filtro-saque" checked> <label for="filtro-saque">Saques</label>
+        <input type="date" id="dataInicio">
+        <input type="date" id="dataFim">
+        <button class="btn-secondary" onclick="gerarGrafico()">🗓 Filtrar Gráfico</button>
+      </div>
+      <canvas id="graficoVendas"></canvas>
+      <div id="total-filtrado"></div>
     </div>
-    <canvas id="graficoVendas"></canvas>
-    <div id="total-filtrado"></div>
   </div>
-</div>
-  <footer>
-    Desenvolvido by GomesCN
-  </footer>
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyCFx7YYsI0jS2tN3sMtOUMRaNHJSIONX6A",
-    authDomain: "bancofac-2aa1d.firebaseapp.com",
-    databaseURL: "https://bancofac-2aa1d-default-rtdb.firebaseio.com/",
-    projectId: "bancofac-2aa1d"
-  };
- firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
+    <footer>
+      Desenvolvido by GomesCN
+    </footer>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCFx7YYsI0jS2tN3sMtOUMRaNHJSIONX6A",
+      authDomain: "bancofac-2aa1d.firebaseapp.com",
+      databaseURL: "https://bancofac-2aa1d-default-rtdb.firebaseio.com/",
+      projectId: "bancofac-2aa1d"
+    };
+  firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-  let saldo = 0, extrato = [];
-  let chart;
-  let usuarioLogado = null;
+    let saldo = 0, extrato = [];
+    let chart;
+    let usuarioLogado = null;
 
-  firebase.auth().onAuthStateChanged(user => {
-    if (user) {
-      usuarioLogado = user;
-      const nomeUsuario = user.displayName ? user.displayName : user.email.split('@')[0];
-      document.getElementById('usuario-logado').innerText = 'Usuário: ' + nomeUsuario;
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) {
+        usuarioLogado = user;
+        const nomeUsuario = user.displayName ? user.displayName : user.email.split('@')[0];
+        document.getElementById('usuario-logado').innerText = 'Usuário: ' + nomeUsuario;
 
-      db.ref('controleCaixa').once('value', snap => {
-        const v = snap.val() || { saldo: 0, extrato: [] };
-        saldo = v.saldo;
-        extrato = Array.isArray(v.extrato) ? v.extrato : [];
-        atualizarSaldo();
-        atualizarExtrato();
-        gerarGrafico();
-      });
-    } else {
-      location.href = 'index.html';
+        db.ref('controleCaixa').once('value', snap => {
+          const v = snap.val() || { saldo: 0, extrato: [] };
+          saldo = v.saldo;
+          extrato = Array.isArray(v.extrato) ? v.extrato : [];
+          atualizarSaldo();
+          atualizarExtrato();
+          gerarGrafico();
+        });
+      } else {
+        location.href = 'index.html';
+      }
+    });
+
+    function formatar(n) {
+      return n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     }
+
+    function atualizarSaldo() {
+      document.getElementById('saldo').innerText = formatar(saldo);
+    }
+
+  function atualizarExtrato() {
+    const box = document.getElementById('extrato-lista');
+    box.innerHTML = '';
+    
+  extrato.slice(0, 6).forEach(m => {
+    const div = document.createElement('div');
+    div.className = 'extrato-item';
+    div.innerHTML = `
+      <div>${m.tipo}</div>
+      <div>${m.item || '-'}</div>
+      <div>${m.descricao}</div>
+      <div>${m.quantidade || '-'}</div>
+      <div>${m.autor}</div>
+      <div>${m.data}</div>
+      <div class="${m.tipo === 'Saque' ? 'valor-negativo' : 'valor-positivo'}">
+        ${m.tipo === 'Saque' ? '-' : ''}${formatar(m.valor)}
+      </div>
+    `;
+    box.appendChild(div);
   });
 
-  function formatar(n) {
-    return n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   }
 
-  function atualizarSaldo() {
-    document.getElementById('saldo').innerText = formatar(saldo);
+  function confirmarMovimentacao() {
+    const tipoVenda = document.getElementById('tipo-venda').value;
+    const valorStr = document.getElementById('valor').value;
+    const valor = parseFloat(valorStr.replace('R$', '').replace(/\./g, '').replace(',', '.').trim());
+    const descricao = document.getElementById('descricao').value;
+    const item = document.getElementById('item-transacao').value;
+  let quantidade = 1;
+  if (tipoVenda !== 'Depósito' && tipoVenda !== 'Saque') {
+    quantidade = parseInt(document.getElementById('quantidade').value);
+    if (isNaN(quantidade) || quantidade <= 0) {
+      return alert("Quantidade inválida.");
+    }
   }
 
-function atualizarExtrato() {
-  const box = document.getElementById('extrato-lista');
-  box.innerHTML = '';
-  
-extrato.slice(0, 6).forEach(m => {
-  const div = document.createElement('div');
-  div.className = 'extrato-item';
-  div.innerHTML = `
-    <div>${m.tipo}</div>
-    <div>${m.item || '-'}</div>
-    <div>${m.descricao}</div>
-    <div>${m.quantidade || '-'}</div>
-    <div>${m.autor}</div>
-    <div>${m.data}</div>
-    <div class="${m.tipo === 'Saque' ? 'valor-negativo' : 'valor-positivo'}">
-      ${m.tipo === 'Saque' ? '-' : ''}${formatar(m.valor)}
-    </div>
-  `;
-  box.appendChild(div);
-});
 
-}
-
-function confirmarMovimentacao() {
-  const tipoVenda = document.getElementById('tipo-venda').value;
-  const valorStr = document.getElementById('valor').value;
-  const valor = parseFloat(valorStr.replace('R$', '').replace(/\./g, '').replace(',', '.').trim());
-  const descricao = document.getElementById('descricao').value;
-  const item = document.getElementById('item-transacao').value;
-let quantidade = 1;
-if (tipoVenda !== 'Depósito' && tipoVenda !== 'Saque') {
-  quantidade = parseInt(document.getElementById('quantidade').value);
-  if (isNaN(quantidade) || quantidade <= 0) {
+    if (!usuarioLogado) return alert('Usuário não autenticado. Faça login novamente.');
+    if (!item) return alert("Selecione um item.");
+    if (isNaN(valor) || valor <= 0) return alert("Valor inválido.");
+  if ((tipoVenda !== 'Depósito' && tipoVenda !== 'Saque') && (isNaN(quantidade) || quantidade <= 0)) {
     return alert("Quantidade inválida.");
   }
-}
 
+    
 
-  if (!usuarioLogado) return alert('Usuário não autenticado. Faça login novamente.');
-  if (!item) return alert("Selecione um item.");
-  if (isNaN(valor) || valor <= 0) return alert("Valor inválido.");
-if ((tipoVenda !== 'Depósito' && tipoVenda !== 'Saque') && (isNaN(quantidade) || quantidade <= 0)) {
-  return alert("Quantidade inválida.");
-}
+    const autor = usuarioLogado.displayName || usuarioLogado.email.split('@')[0];
 
-  
-
-  const autor = usuarioLogado.displayName || usuarioLogado.email.split('@')[0];
-
-// Corrige o saldo com base no tipo
-if (tipoVenda === 'Saque') {
-  saldo -= valor;
-} else {
-  saldo += valor;
-}
-
-extrato.unshift({
-  tipo: tipoVenda, // agora corretamente define 'Saque' ou 'Depósito' etc.
-  item,
-  quantidade,
-  descricao,
-  autor,
-  valor,
-  tipoVenda,
-  data: new Date().toLocaleString('pt-BR')
-});
-
-
-  db.ref('controleCaixa').set({ saldo, extrato });
-  atualizarSaldo();
-  atualizarExtrato();
-  gerarGrafico();
-
-  document.getElementById('descricao').value = '';
-  document.getElementById('quantidade').value = 1;
-  document.getElementById('item-transacao').selectedIndex = 0;
-  document.getElementById('valor').value = '';
-}
-
-  function logout() {
-    firebase.auth().signOut().then(() => location.href = 'index.html');
-  }
-
-  const precosItens = {
-    "Algema": { parceria: 2000, semParceria: 3000 },
-    "Capuz": { parceria: 2000, semParceria: 3000 },
-    "C4": { parceria: 2000, semParceria: 2500 },
-    "Colete": { parceria: 3000, semParceria: 3000 },
-    "Álcool": { parceria: 500, semParceria: 700 },
-    "Pente Estendido PT": { parceria: 1000, semParceria: 1200 },
-    "Pente Estendido SMG": { parceria: 1000, semParceria: 1200 },
-    "Pente Estendido Rifle": { parceria: 1000, semParceria: 1200 },
-    "Cano Pesado": { parceria: 1000, semParceria: 1200 },
-    "Compensador Tático": { parceria: 1000, semParceria: 1200 },
-    "Compensador Pesado": { parceria: 1000, semParceria: 1200 },
-    "Mira": { parceria: 1000, semParceria: 1200 },
-    "Lanterna": { parceria: 1000, semParceria: 1200 },
-    "Cabo": { parceria: 1000, semParceria: 1200 },
-    "Silenciador": { parceria: 1000, semParceria: 2000 },
-    "Caixa de Attachs": { parceria: 5000, semParceria: 6000 },
-    "Cartão Comum": { parceria: 30000, semParceria: 35000 },
-    "Cartão Incomum": { parceria: 35000, semParceria: 40000 },
-    "Cartão Épico": { parceria: 40000, semParceria: 45000 },
-    "Cartão Raro": { parceria: 50000, semParceria: 60000 },
-    "Cartão Lendário": { parceria: 70000, semParceria: 80000 },
-    "Caixa Colete": { parceria: 35000, semParceria: 40000 },
-    "Caixa de C4": { parceria: 20000, semParceria: 25000 },
-    "Caixa de Algema": { parceria: 25000, semParceria: 30000 },
-    "Caixa Alcool": { parceria: 500, semParceria: 700 },
-    "Pendrive Comum": { parceria: 10000, semParceria: 15000 },
-    "Pendrive Raro": { parceria: 20000, semParceria: 20000 },
-    "Pendrive Épico": { parceria: 40000, semParceria: 45000 }
-  };
-
-function atualizarValorCalculado() {
-  const item = document.getElementById('item-transacao').value;
-  const tipo = document.getElementById('tipo-venda').value;
-  const qtd = parseInt(document.getElementById('quantidade').value) || 1;
-
-  const valorInput = document.getElementById('valor');
-
-  // Para Depósito ou Saque, permitir valor manual
-  if (tipo === 'Depósito' || tipo === 'Saque') {
-    valorInput.removeAttribute('readonly');
-    valorInput.value = ''; // Limpa se necessário
-    return;
-  }
-
-  // Para os demais, calcula automaticamente
-  valorInput.setAttribute('readonly', true);
-  if (item && precosItens[item]) {
-    const precoUnitario = precosItens[item][tipo];
-    const total = precoUnitario * qtd;
-    valorInput.value = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  // Corrige o saldo com base no tipo
+  if (tipoVenda === 'Saque') {
+    saldo -= valor;
   } else {
-    valorInput.value = '';
+    saldo += valor;
   }
+
+  extrato.unshift({
+    tipo: tipoVenda, // agora corretamente define 'Saque' ou 'Depósito' etc.
+    item,
+    quantidade,
+    descricao,
+    autor,
+    valor,
+    tipoVenda,
+    data: new Date().toLocaleString('pt-BR')
+  });
+
+
+    db.ref('controleCaixa').set({ saldo, extrato });
+    atualizarSaldo();
+    atualizarExtrato();
+    gerarGrafico();
+
+    document.getElementById('descricao').value = '';
+    document.getElementById('quantidade').value = 1;
+    document.getElementById('item-transacao').selectedIndex = 0;
+    document.getElementById('valor').value = '';
+  }
+
+    function logout() {
+      firebase.auth().signOut().then(() => location.href = 'index.html');
+    }
+
+    const precosItens = {
+      "Algema": { parceria: 2000, semParceria: 3000 },
+      "Capuz": { parceria: 2000, semParceria: 3000 },
+      "C4": { parceria: 2000, semParceria: 2500 },
+      "Colete": { parceria: 3000, semParceria: 3000 },
+      "Álcool": { parceria: 500, semParceria: 700 },
+      "Pente Estendido PT": { parceria: 1000, semParceria: 1200 },
+      "Pente Estendido SMG": { parceria: 1000, semParceria: 1200 },
+      "Pente Estendido Rifle": { parceria: 1000, semParceria: 1200 },
+      "Cano Pesado": { parceria: 1000, semParceria: 1200 },
+      "Compensador Tático": { parceria: 1000, semParceria: 1200 },
+      "Compensador Pesado": { parceria: 1000, semParceria: 1200 },
+      "Mira": { parceria: 1000, semParceria: 1200 },
+      "Lanterna": { parceria: 1000, semParceria: 1200 },
+      "Cabo": { parceria: 1000, semParceria: 1200 },
+      "Silenciador": { parceria: 1000, semParceria: 2000 },
+      "Caixa de Attachs": { parceria: 5000, semParceria: 6000 },
+      "Cartão Comum": { parceria: 30000, semParceria: 35000 },
+      "Cartão Incomum": { parceria: 35000, semParceria: 40000 },
+      "Cartão Épico": { parceria: 40000, semParceria: 45000 },
+      "Cartão Raro": { parceria: 50000, semParceria: 60000 },
+      "Cartão Lendário": { parceria: 70000, semParceria: 80000 },
+      "Caixa Colete": { parceria: 35000, semParceria: 40000 },
+      "Caixa de C4": { parceria: 20000, semParceria: 25000 },
+      "Caixa de Algema": { parceria: 25000, semParceria: 30000 },
+      "Caixa Alcool": { parceria: 500, semParceria: 700 },
+      "Pendrive Comum": { parceria: 10000, semParceria: 15000 },
+      "Pendrive Raro": { parceria: 20000, semParceria: 20000 },
+      "Pendrive Épico": { parceria: 40000, semParceria: 45000 }
+    };
+
+  function atualizarValorCalculado() {
+    const item = document.getElementById('item-transacao').value;
+    const tipo = document.getElementById('tipo-venda').value;
+    const qtd = parseInt(document.getElementById('quantidade').value) || 1;
+
+    const valorInput = document.getElementById('valor');
+
+    // Para Depósito ou Saque, permitir valor manual
+    if (tipo === 'Depósito' || tipo === 'Saque') {
+      valorInput.removeAttribute('readonly');
+      valorInput.value = ''; // Limpa se necessário
+      return;
+    }
+
+    // Para os demais, calcula automaticamente
+    valorInput.setAttribute('readonly', true);
+    if (item && precosItens[item]) {
+      const precoUnitario = precosItens[item][tipo];
+      const total = precoUnitario * qtd;
+      valorInput.value = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    } else {
+      valorInput.value = '';
+    }
+  }
+
+      function gerarGrafico() {
+      const di = document.getElementById('dataInicio').value;
+      const df = document.getElementById('dataFim').value;
+      const start = di ? new Date(di) : new Date(0);
+      const end = df ? new Date(df) : new Date();
+
+      const incluirVendas = document.getElementById('filtro-venda').checked;
+      const incluirDepositos = document.getElementById('filtro-deposito').checked;
+      const incluirSaques = document.getElementById('filtro-saque').checked;
+
+      const tiposSelecionados = [];
+if (incluirVendas) {
+  tiposSelecionados.push('parceria', 'semParceria');
+}
+if (incluirDepositos) {
+  tiposSelecionados.push('Depósito');
+}
+if (incluirSaques) {
+  tiposSelecionados.push('Saque');
 }
 
-    function gerarGrafico() {
-    const di = document.getElementById('dataInicio').value;
-    const df = document.getElementById('dataFim').value;
-    const start = di ? new Date(di) : new Date(0);
-    const end = df ? new Date(df) : new Date();
+      const map = {};
+      let totalFiltrado = 0;
 
-    const incluirVendas = document.getElementById('filtro-venda').checked;
-    const incluirDepositos = document.getElementById('filtro-deposito').checked;
-    const incluirSaques = document.getElementById('filtro-saque').checked;
+      extrato.filter(e => tiposSelecionados.includes(e.tipo)).forEach(e => {
+        const partesData = e.data.split(',')[0].split('/');
+        const d = new Date(`${partesData[2]}-${partesData[1]}-${partesData[0]}`);
+        if (d < start || d > end) return;
 
-    const tiposSelecionados = [];
-    if (incluirVendas) tiposSelecionados.push('Venda');
-    if (incluirDepositos) tiposSelecionados.push('Depósito');
-    if (incluirSaques) tiposSelecionados.push('Saque');
+        const key = e.data.split(',')[0];
+        let valor = e.tipo === 'Saque' ? -e.valor : e.valor;
+        map[key] = (map[key] || 0) + valor;
+        totalFiltrado += valor;
+      });
 
-    const map = {};
-    let totalFiltrado = 0;
+      const labels = Object.keys(map).sort((a, b) => {
+        const [da, ma, ya] = a.split('/').map(Number);
+        const [db, mb, yb] = b.split('/').map(Number);
+        return new Date(ya, ma - 1, da) - new Date(yb, mb - 1, db);
+      });
 
-    extrato.filter(e => tiposSelecionados.includes(e.tipo)).forEach(e => {
-      const partesData = e.data.split(',')[0].split('/');
-      const d = new Date(`${partesData[2]}-${partesData[1]}-${partesData[0]}`);
-      if (d < start || d > end) return;
+      const data = labels.map(l => map[l]);
 
-      const key = e.data.split(',')[0];
-      let valor = e.tipo === 'Saque' ? -e.valor : e.valor;
-      map[key] = (map[key] || 0) + valor;
-      totalFiltrado += valor;
-    });
-
-    const labels = Object.keys(map).sort((a, b) => {
-      const [da, ma, ya] = a.split('/').map(Number);
-      const [db, mb, yb] = b.split('/').map(Number);
-      return new Date(ya, ma - 1, da) - new Date(yb, mb - 1, db);
-    });
-
-    const data = labels.map(l => map[l]);
-
-    if (chart) chart.destroy();
-    chart = new Chart(document.getElementById('graficoVendas').getContext('2d'), {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [{
-          label: `Total por Dia (${tiposSelecionados.join(' + ')})`,
-          data,
-          backgroundColor: data.map(valor => valor >= 0 ? '#3b82f6' : '#ef4444')
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: true },
-          tooltip: {
-            callbacks: {
-              label: function(context) {
-                return formatar(context.parsed.y);
+      if (chart) chart.destroy();
+      chart = new Chart(document.getElementById('graficoVendas').getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            label: `Total por Dia (${tiposSelecionados.join(' + ')})`,
+            data,
+            backgroundColor: data.map(valor => valor >= 0 ? '#3b82f6' : '#ef4444')
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: true },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return formatar(context.parsed.y);
+                }
               }
             }
-          }
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: {
-              callback: function(value) {
-                return formatar(value);
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: function(value) {
+                  return formatar(value);
+                }
               }
             }
           }
         }
+      });
+
+      document.getElementById('total-filtrado').innerText = `Total no Período: ${formatar(totalFiltrado)}`;
+    }
+
+    function logout() {
+      firebase.auth().signOut().then(() => location.href = 'index.html');
+    }
+      function limparHistorico() {
+      if (extrato.length === 0) return alert('Nenhum extrato disponível.');
+
+      const agora = new Date();
+      const inicioPeriodoUm = new Date(2025, 5, 1);
+      const inicioMesPassado = new Date(agora.getFullYear(), agora.getMonth() - 1, 1);
+      const fimMesPassado = new Date(agora.getFullYear(), agora.getMonth(), 0);
+
+      let periodo = prompt(
+        `De qual período você deseja visualizar as transações para excluir?\n\n` +
+        `1 - De 01/06/2025 até ${agora.toLocaleDateString('pt-BR')}\n` +
+        `2 - Mês Passado (${inicioMesPassado.toLocaleDateString('pt-BR')} até ${fimMesPassado.toLocaleDateString('pt-BR')})`
+      );
+
+      let extratoFiltrado = [];
+
+      function parseDataFlexivel(dataString) {
+        if (!dataString) return null;
+        let data;
+        const partes = dataString.split(',')[0].split('/');
+        if (partes.length === 3 && partes[2].length === 4) {
+          data = new Date(`${partes[2]}-${partes[1]}-${partes[0]}`);
+        } else if (!isNaN(Date.parse(dataString))) {
+          data = new Date(dataString);
+        } else {
+          return null;
+        }
+        return isNaN(data.getTime()) ? null : data;
       }
-    });
 
-    document.getElementById('total-filtrado').innerText = `Total no Período: ${formatar(totalFiltrado)}`;
-  }
-
-  function logout() {
-    firebase.auth().signOut().then(() => location.href = 'index.html');
-  }
-    function limparHistorico() {
-    if (extrato.length === 0) return alert('Nenhum extrato disponível.');
-
-    const agora = new Date();
-    const inicioPeriodoUm = new Date(2025, 5, 1);
-    const inicioMesPassado = new Date(agora.getFullYear(), agora.getMonth() - 1, 1);
-    const fimMesPassado = new Date(agora.getFullYear(), agora.getMonth(), 0);
-
-    let periodo = prompt(
-      `De qual período você deseja visualizar as transações para excluir?\n\n` +
-      `1 - De 01/06/2025 até ${agora.toLocaleDateString('pt-BR')}\n` +
-      `2 - Mês Passado (${inicioMesPassado.toLocaleDateString('pt-BR')} até ${fimMesPassado.toLocaleDateString('pt-BR')})`
-    );
-
-    let extratoFiltrado = [];
-
-    function parseDataFlexivel(dataString) {
-      if (!dataString) return null;
-      let data;
-      const partes = dataString.split(',')[0].split('/');
-      if (partes.length === 3 && partes[2].length === 4) {
-        data = new Date(`${partes[2]}-${partes[1]}-${partes[0]}`);
-      } else if (!isNaN(Date.parse(dataString))) {
-        data = new Date(dataString);
+      if (periodo === '1') {
+        extratoFiltrado = extrato.filter(e => {
+          let dataTransacao = parseDataFlexivel(e.data);
+          return dataTransacao && dataTransacao >= inicioPeriodoUm && dataTransacao <= agora;
+        });
+      } else if (periodo === '2') {
+        extratoFiltrado = extrato.filter(e => {
+          let dataTransacao = parseDataFlexivel(e.data);
+          return dataTransacao && dataTransacao >= inicioMesPassado && dataTransacao <= fimMesPassado;
+        });
       } else {
-        return null;
+        return alert('Período inválido ou cancelado.');
       }
-      return isNaN(data.getTime()) ? null : data;
+
+      if (extratoFiltrado.length === 0) {
+        return alert('Nenhuma transação encontrada nesse período.');
+      }
+
+      let lista = extratoFiltrado.map((item, idx) => {
+        return `${idx + 1} – ${item.tipo} – ${item.descricao} – ${formatar(item.valor)} – ${item.autor} – ${item.data}`;
+      }).join('\n');
+
+      let escolha = prompt(`Escolha o número da transação que deseja excluir:\n\n${lista}`);
+      let indexEscolhido = parseInt(escolha) - 1;
+
+      if (isNaN(indexEscolhido) || indexEscolhido < 0 || indexEscolhido >= extratoFiltrado.length) {
+        return alert('Número inválido.');
+      }
+
+      let itemSelecionado = extratoFiltrado[indexEscolhido];
+
+      let senha = prompt('Digite a senha:');
+      if (senha !== 'tdc2024') return alert('Senha incorreta.');
+
+      let indexReal = extrato.findIndex(e =>
+        e.tipo === itemSelecionado.tipo &&
+        e.descricao === itemSelecionado.descricao &&
+        e.autor === itemSelecionado.autor &&
+        e.data === itemSelecionado.data &&
+        e.valor === itemSelecionado.valor
+      );
+
+      if (indexReal !== -1) {
+        saldo -= itemSelecionado.tipo === 'Saque' ? -itemSelecionado.valor : itemSelecionado.valor;
+        extrato.splice(indexReal, 1);
+        db.ref('controleCaixa').set({ saldo, extrato });
+        atualizarSaldo();
+        atualizarExtrato();
+        gerarGrafico();
+        alert('Transação excluída com sucesso.');
+      } else {
+        alert('Não foi possível localizar a transação.');
+      }
     }
-
-    if (periodo === '1') {
-      extratoFiltrado = extrato.filter(e => {
-        let dataTransacao = parseDataFlexivel(e.data);
-        return dataTransacao && dataTransacao >= inicioPeriodoUm && dataTransacao <= agora;
-      });
-    } else if (periodo === '2') {
-      extratoFiltrado = extrato.filter(e => {
-        let dataTransacao = parseDataFlexivel(e.data);
-        return dataTransacao && dataTransacao >= inicioMesPassado && dataTransacao <= fimMesPassado;
-      });
-    } else {
-      return alert('Período inválido ou cancelado.');
-    }
-
-    if (extratoFiltrado.length === 0) {
-      return alert('Nenhuma transação encontrada nesse período.');
-    }
-
-    let lista = extratoFiltrado.map((item, idx) => {
-      return `${idx + 1} – ${item.tipo} – ${item.descricao} – ${formatar(item.valor)} – ${item.autor} – ${item.data}`;
-    }).join('\n');
-
-    let escolha = prompt(`Escolha o número da transação que deseja excluir:\n\n${lista}`);
-    let indexEscolhido = parseInt(escolha) - 1;
-
-    if (isNaN(indexEscolhido) || indexEscolhido < 0 || indexEscolhido >= extratoFiltrado.length) {
-      return alert('Número inválido.');
-    }
-
-    let itemSelecionado = extratoFiltrado[indexEscolhido];
-
-    let senha = prompt('Digite a senha:');
-    if (senha !== 'tdc2024') return alert('Senha incorreta.');
-
-    let indexReal = extrato.findIndex(e =>
-      e.tipo === itemSelecionado.tipo &&
-      e.descricao === itemSelecionado.descricao &&
-      e.autor === itemSelecionado.autor &&
-      e.data === itemSelecionado.data &&
-      e.valor === itemSelecionado.valor
-    );
-
-    if (indexReal !== -1) {
-      saldo -= itemSelecionado.tipo === 'Saque' ? -itemSelecionado.valor : itemSelecionado.valor;
-      extrato.splice(indexReal, 1);
-      db.ref('controleCaixa').set({ saldo, extrato });
-      atualizarSaldo();
-      atualizarExtrato();
-      gerarGrafico();
-      alert('Transação excluída com sucesso.');
-    } else {
-      alert('Não foi possível localizar a transação.');
-    }
-  }
-</script>
-
-</body>
-</html>
+  </script>
+  </body>
+  </html>
