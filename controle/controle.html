@@ -10,16 +10,19 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: Arial, sans-serif; background: #1b1b1b; color: #1a1a1a; }
-    header {
-      background: linear-gradient(90deg, #a50000, #f56060); border-bottom: 1px solid #2b2b2b;
-      padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center;
-      position: sticky; top: 0; z-index: 10;
-    }
+header {
+  position: fixed;
+  top: 10px;
+  right: 20px;
+  z-index: 999;
+}
+
+
     header h1 { font-size: 1.25rem; font-weight: 600; }
     .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
     .saldo-card {
-      background: linear-gradient(90deg, #a50000, #f56060);
-      color: #fff; border-radius: 12px; padding: 2rem; text-align: center;
+      background: linear-gradient(90deg, #c90000, #ffffff, #FF0000);
+      color: #272727; border-radius: 12px; padding: 2rem; text-align: center;
       margin-bottom: 2rem;
     }
     .main {
@@ -45,11 +48,17 @@
     .btn-secondary { background: #f63b3b; color: #fff; margin-left: 0.5rem; }
     .btn-tercerary { background: #ff6a00; color: #fff; width: 100%; }
     .extrato-lista { max-height: 300px; overflow-y: auto; margin-top: 1rem; }
-    .extrato-item {
-      border-bottom: 1px solid #d6d6d6; padding: 0.75rem 0;
-      font-size: 0.85rem; display: grid; grid-template-columns: 1fr 2fr 1fr 2fr 1fr;
-      gap: 0.5rem; align-items: center;
-    }
+.extrato-item {
+  border-bottom: 1px solid #d6d6d6;
+  padding: 0.5rem 0;
+  font-size: 0.85rem;
+  display: grid;
+  grid-template-columns: 0.8fr 1fr 1.2fr 0.8fr 1fr 1.5fr 1fr;
+  gap: 0.25rem;
+  text-align: center;
+  justify-items: center;
+}
+
     .extrato-item:last-child { border: none; }
     .valor-negativo { color: #ef4444; }
     .valor-positivo { color: #10b981; }
@@ -62,15 +71,15 @@
       padding: 1rem;
     }
     #usuario-logado { margin-bottom: 1rem; font-weight: bold; color: #ffffff; }
-    }
+    
 
     footer {
-      position: fixed;
-      bottom: 10px;
+      margin-top: -5px;
+      bottom: 5px;
       width: 100%;
       text-align: center;
       color: #aaa;
-      font-size: 14px;
+      font-size: 10px;
     }
 
     @media (max-width: 480px) {
@@ -85,16 +94,37 @@
         font-size: 12px;
       }
     }
+    .btn-sair {
+  background: linear-gradient(to right, #e52d27, #b31217);
+  color: white;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn-sair:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+}
+
   </style>
 </head>
 <body>
 
 <header>
-  <h1>Painel de Controle Financeiro</h1>
-  <button onclick="logout()">↩ Sair</button>
+<button class="btn-sair" onclick="logout()">↩ Sair</button>
 </header>
 
+
 <div class="container">
+  <div style="text-align: center; margin-top: 1rem;">
+<img src="https://i.ibb.co/Ps0zPY0g/bolotas.gif" width="140" height="110" alt="Descrição da imagem" style="border-radius: 12px;">
+</div>
+
   <div id="usuario-logado">Usuário: Carregando...</div>
 
   <div class="saldo-card">
@@ -103,31 +133,87 @@
   </div>
 
   <div class="main">
-    <div class="card">
-      <center><h2>Nova Transação</h2></center>
-      <div class="form-group">
-        <label>Tipo:</label>
-        <select id="tipo-movimentacao">
-          <option value="Venda">Venda</option>
-          <option value="Depósito">Depósito</option>
-          <option value="Saque">Saque</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Valor:</label>
-        <input type="number" id="valor" placeholder="Valor">
-      </div>
-      <div class="form-group">
-        <label>Descrição:</label>
-        <input type="text" id="descricao" placeholder="Descreva a transação">
-      </div>
-      <button class="btn-primary" onclick="confirmarMovimentacao()">Adicionar Transação</button>
-<button class="btn-tercerary" onclick="window.location.href='http://banco.marcone.store/controle/calculadora.html'">Calcular comissão</button>
-    </div>
+<div class="card">
+  <center><h2>Nova Transação</h2></center>
+  
+<div class="form-group">
+  <label>Tipo de Venda:</label>
+  <select id="tipo-venda" onchange="atualizarValorCalculado()">
+    <option value="parceria">Parceria</option>
+    <option value="semParceria">Sem Parceria</option>
+  </select>
+</div>
+
+<div class="form-group">
+  <label>Item:</label>
+  <select id="item-transacao" onchange="atualizarValorCalculado()">
+    <option value="" disabled selected>Selecione o item</option>
+    <option value="Algema">Algema</option>
+    <option value="Capuz">Capuz</option>
+    <option value="C4">C4</option>
+    <option value="Colete">Colete</option>
+    <option value="Álcool">Álcool</option>
+    <option value="Pente Estendido PT">Pente Estendido PT</option>
+    <option value="Pente Estendido SMG">Pente Estendido SMG</option>
+    <option value="Pente Estendido Rifle">Pente Estendido Rifle</option>
+    <option value="Cano Pesado">Cano Pesado</option>
+    <option value="Compensador Tático">Compensador Tático</option>
+    <option value="Compensador Pesado">Compensador Pesado</option>
+    <option value="Mira">Mira</option>
+    <option value="Lanterna">Lanterna</option>
+    <option value="Cabo">Cabo</option>
+    <option value="Silenciador">Silenciador</option>
+    <option value="Caixa de Attachs">Caixa de Attachs</option>
+    <option value="Cartão Comum">Cartão Comum</option>
+    <option value="Cartão Incomum">Cartão Incomum</option>
+    <option value="Cartão Épico">Cartão Épico</option>
+    <option value="Cartão Raro">Cartão Raro</option>
+    <option value="Cartão Lendário">Cartão Lendário</option>
+    <option value="Caixa Colete">Caixa Colete</option>
+    <option value="Caixa de C4">Caixa de C4</option>
+    <option value="Caixa de Algema">Caixa de Algema</option>
+    <option value="Caixa Alcool">Caixa Alcool</option>
+    <option value="Pendrive Comum">Pendrive Comum</option>
+    <option value="Pendrive Raro">Pendrive Raro</option>
+    <option value="Pendrive Épico">Pendrive Épico</option>
+  </select>
+</div>
+
+<div class="form-group">
+  <label>Quantidade:</label>
+<input type="number" id="quantidade"placeholder="Digite a quantidade" oninput="atualizarValorCalculado()">
+</div>
+
+<div class="form-group">
+  <label>Valor Total:</label>
+  <input type="text" id="valor"placeholder="Valor automatizado" readonly>
+</div>
+
+  <div class="form-group">
+    <label>Facção:</label>
+    <input type="text" id="descricao" placeholder="Nome da facção">
+  </div>
+
+  <button class="btn-primary" onclick="confirmarMovimentacao()">Adicionar Transação</button>
+</div>
+
 
     <div class="card">
       <h2>Extrato</h2>
-      <div class="extrato-lista" id="extrato-lista"></div>
+<!-- Títulos das colunas -->
+<div class="extrato-item" style="font-weight: bold; border-bottom: 2px solid #ccc;">
+  <center><div>Tipo</div></center>
+ <center> <div>Item</div></center>
+ <center> <div>Facção</div></center>
+  <center><div>Quantidade</div></center>
+  <center><div>Usuário</div></center>
+  <center><div>Data</div></center>
+  <center><div>Valor</div></center>
+</div>
+
+
+<!-- Lista de transações -->
+<div class="extrato-lista" id="extrato-lista"></div>
       <div style="margin-top: 1rem; display: flex; justify-content: flex-end;">
         <button class="btn-secondary" onclick="limparHistorico()">🗑 Limpar</button>
         <button class="btn-secondary" onclick="location.href='relatorio.html'">📄 Ver Relatório</button>
@@ -149,7 +235,7 @@
   </div>
 </div>
   <footer>
-    Desenvolvido by Gomes &hearts;
+    Desenvolvido by GomesCN
   </footer>
 <script>
   const firebaseConfig = {
@@ -158,7 +244,7 @@
     databaseURL: "https://bancofac-2aa1d-default-rtdb.firebaseio.com/",
     projectId: "bancofac-2aa1d"
   };
-  firebase.initializeApp(firebaseConfig);
+ firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
 
   let saldo = 0, extrato = [];
@@ -174,7 +260,7 @@
       db.ref('controleCaixa').once('value', snap => {
         const v = snap.val() || { saldo: 0, extrato: [] };
         saldo = v.saldo;
-        extrato = v.extrato;
+        extrato = Array.isArray(v.extrato) ? v.extrato : [];
         atualizarSaldo();
         atualizarExtrato();
         gerarGrafico();
@@ -192,61 +278,196 @@
     document.getElementById('saldo').innerText = formatar(saldo);
   }
 
-  function atualizarExtrato() {
-    const box = document.getElementById('extrato-lista');
-    box.innerHTML = '';
-    extrato.slice(0, 6).forEach(m => {
-      const div = document.createElement('div');
-      div.className = 'extrato-item';
-      div.innerHTML = `
-        <div>${m.tipo}</div>
-        <div>${m.descricao}</div>
-        <div>${m.autor}</div>
-        <div>${m.data}</div>
-        <div class="${m.tipo === 'Saque' ? 'valor-negativo' : 'valor-positivo'}">
-          ${m.tipo === 'Saque' ? '-' : ''}${formatar(m.valor)}
-        </div>
-      `;
-      box.appendChild(div);
-    });
+function atualizarExtrato() {
+  const box = document.getElementById('extrato-lista');
+  box.innerHTML = '';
+  
+extrato.slice(0, 6).forEach(m => {
+  const div = document.createElement('div');
+  div.className = 'extrato-item';
+  div.innerHTML = `
+    <div>${m.tipo}</div>
+    <div>${m.item || '-'}</div>
+    <div>${m.descricao}</div>
+    <div>${m.quantidade || '-'}</div>
+    <div>${m.autor}</div>
+    <div>${m.data}</div>
+    <div class="${m.tipo === 'Saque' ? 'valor-negativo' : 'valor-positivo'}">
+      ${m.tipo === 'Saque' ? '-' : ''}${formatar(m.valor)}
+    </div>
+  `;
+  box.appendChild(div);
+});
+
+}
+
+function confirmarMovimentacao() {
+  const tipoVenda = document.getElementById('tipo-venda').value;
+  const valorStr = document.getElementById('valor').value;
+  const valor = parseFloat(valorStr.replace('R$', '').replace(/\./g, '').replace(',', '.').trim());
+  const descricao = document.getElementById('descricao').value;
+  const item = document.getElementById('item-transacao').value;
+  const quantidade = parseInt(document.getElementById('quantidade').value);
+
+  if (!usuarioLogado) return alert('Usuário não autenticado. Faça login novamente.');
+  if (!item) return alert("Selecione um item.");
+  if (isNaN(valor) || valor <= 0) return alert("Valor inválido.");
+  if (isNaN(quantidade) || quantidade <= 0) return alert("Quantidade inválida.");
+
+  const autor = usuarioLogado.displayName || usuarioLogado.email.split('@')[0];
+
+  saldo += valor;
+  extrato.unshift({
+    tipo: 'Venda',
+    item,
+    quantidade,
+    descricao,
+    autor,
+    valor,
+    tipoVenda,
+    data: new Date().toLocaleString('pt-BR')
+  });
+
+  db.ref('controleCaixa').set({ saldo, extrato });
+  atualizarSaldo();
+  atualizarExtrato();
+  gerarGrafico();
+
+  document.getElementById('descricao').value = '';
+  document.getElementById('quantidade').value = 1;
+  document.getElementById('item-transacao').selectedIndex = 0;
+  document.getElementById('valor').value = '';
+}
+
+  function logout() {
+    firebase.auth().signOut().then(() => location.href = 'index.html');
   }
 
-  function confirmarMovimentacao() {
-    const tipo = document.getElementById('tipo-movimentacao').value;
-    const valor = parseFloat(document.getElementById('valor').value);
-    const descricao = document.getElementById('descricao').value;
+  const precosItens = {
+    "Algema": { parceria: 2000, semParceria: 3000 },
+    "Capuz": { parceria: 2000, semParceria: 3000 },
+    "C4": { parceria: 2000, semParceria: 2500 },
+    "Colete": { parceria: 3000, semParceria: 3000 },
+    "Álcool": { parceria: 500, semParceria: 700 },
+    "Pente Estendido PT": { parceria: 1000, semParceria: 1200 },
+    "Pente Estendido SMG": { parceria: 1000, semParceria: 1200 },
+    "Pente Estendido Rifle": { parceria: 1000, semParceria: 1200 },
+    "Cano Pesado": { parceria: 1000, semParceria: 1200 },
+    "Compensador Tático": { parceria: 1000, semParceria: 1200 },
+    "Compensador Pesado": { parceria: 1000, semParceria: 1200 },
+    "Mira": { parceria: 1000, semParceria: 1200 },
+    "Lanterna": { parceria: 1000, semParceria: 1200 },
+    "Cabo": { parceria: 1000, semParceria: 1200 },
+    "Silenciador": { parceria: 1000, semParceria: 2000 },
+    "Caixa de Attachs": { parceria: 5000, semParceria: 6000 },
+    "Cartão Comum": { parceria: 30000, semParceria: 35000 },
+    "Cartão Incomum": { parceria: 35000, semParceria: 40000 },
+    "Cartão Épico": { parceria: 40000, semParceria: 45000 },
+    "Cartão Raro": { parceria: 50000, semParceria: 60000 },
+    "Cartão Lendário": { parceria: 70000, semParceria: 80000 },
+    "Caixa Colete": { parceria: 35000, semParceria: 40000 },
+    "Caixa de C4": { parceria: 20000, semParceria: 25000 },
+    "Caixa de Algema": { parceria: 25000, semParceria: 30000 },
+    "Caixa Alcool": { parceria: 500, semParceria: 700 },
+    "Pendrive Comum": { parceria: 10000, semParceria: 15000 },
+    "Pendrive Raro": { parceria: 20000, semParceria: 20000 },
+    "Pendrive Épico": { parceria: 40000, semParceria: 45000 }
+  };
 
-    if (!usuarioLogado) {
-      alert('Usuário não autenticado. Faça login novamente.');
-      return;
+  function atualizarValorCalculado() {
+    const item = document.getElementById('item-transacao').value;
+    const tipo = document.getElementById('tipo-venda').value;
+    const qtd = parseInt(document.getElementById('quantidade').value) || 1;
+
+    if (item && precosItens[item]) {
+      const precoUnitario = precosItens[item][tipo];
+      const total = precoUnitario * qtd;
+      document.getElementById('valor').value = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    } else {
+      document.getElementById('valor').value = '';
     }
+  }
+    function gerarGrafico() {
+    const di = document.getElementById('dataInicio').value;
+    const df = document.getElementById('dataFim').value;
+    const start = di ? new Date(di) : new Date(0);
+    const end = df ? new Date(df) : new Date();
 
-    let autor = usuarioLogado.displayName || usuarioLogado.email.split('@')[0];
+    const incluirVendas = document.getElementById('filtro-venda').checked;
+    const incluirDepositos = document.getElementById('filtro-deposito').checked;
+    const incluirSaques = document.getElementById('filtro-saque').checked;
 
-    if (!tipo || isNaN(valor) || (tipo === 'Saque' && valor > saldo)) {
-      return alert('Preencha os campos corretamente ou saldo insuficiente.');
-    }
+    const tiposSelecionados = [];
+    if (incluirVendas) tiposSelecionados.push('Venda');
+    if (incluirDepositos) tiposSelecionados.push('Depósito');
+    if (incluirSaques) tiposSelecionados.push('Saque');
 
-    saldo += tipo === 'Saque' ? -valor : valor;
-    extrato.unshift({
-      tipo,
-      descricao,
-      autor,
-      valor,
-      data: new Date().toLocaleString('pt-BR')
+    const map = {};
+    let totalFiltrado = 0;
+
+    extrato.filter(e => tiposSelecionados.includes(e.tipo)).forEach(e => {
+      const partesData = e.data.split(',')[0].split('/');
+      const d = new Date(`${partesData[2]}-${partesData[1]}-${partesData[0]}`);
+      if (d < start || d > end) return;
+
+      const key = e.data.split(',')[0];
+      let valor = e.tipo === 'Saque' ? -e.valor : e.valor;
+      map[key] = (map[key] || 0) + valor;
+      totalFiltrado += valor;
     });
 
-    db.ref('controleCaixa').set({ saldo, extrato });
-    atualizarSaldo();
-    atualizarExtrato();
-    gerarGrafico();
+    const labels = Object.keys(map).sort((a, b) => {
+      const [da, ma, ya] = a.split('/').map(Number);
+      const [db, mb, yb] = b.split('/').map(Number);
+      return new Date(ya, ma - 1, da) - new Date(yb, mb - 1, db);
+    });
 
-    document.getElementById('valor').value = '';
-    document.getElementById('descricao').value = '';
-    document.getElementById('tipo-movimentacao').value = '';
+    const data = labels.map(l => map[l]);
+
+    if (chart) chart.destroy();
+    chart = new Chart(document.getElementById('graficoVendas').getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: `Total por Dia (${tiposSelecionados.join(' + ')})`,
+          data,
+          backgroundColor: data.map(valor => valor >= 0 ? '#3b82f6' : '#ef4444')
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: true },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return formatar(context.parsed.y);
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: function(value) {
+                return formatar(value);
+              }
+            }
+          }
+        }
+      }
+    });
+
+    document.getElementById('total-filtrado').innerText = `Total no Período: ${formatar(totalFiltrado)}`;
   }
 
-  function limparHistorico() {
+  function logout() {
+    firebase.auth().signOut().then(() => location.href = 'index.html');
+  }
+    function limparHistorico() {
     if (extrato.length === 0) return alert('Nenhum extrato disponível.');
 
     const agora = new Date();
@@ -329,87 +550,6 @@
     } else {
       alert('Não foi possível localizar a transação.');
     }
-  }
-
-  function gerarGrafico() {
-    const di = document.getElementById('dataInicio').value;
-    const df = document.getElementById('dataFim').value;
-    const start = di ? new Date(di) : new Date(0);
-    const end = df ? new Date(df) : new Date();
-
-    const incluirVendas = document.getElementById('filtro-venda').checked;
-    const incluirDepositos = document.getElementById('filtro-deposito').checked;
-    const incluirSaques = document.getElementById('filtro-saque').checked;
-
-    const tiposSelecionados = [];
-    if (incluirVendas) tiposSelecionados.push('Venda');
-    if (incluirDepositos) tiposSelecionados.push('Depósito');
-    if (incluirSaques) tiposSelecionados.push('Saque');
-
-    const map = {};
-    let totalFiltrado = 0;
-
-    extrato.filter(e => tiposSelecionados.includes(e.tipo)).forEach(e => {
-      const partesData = e.data.split(',')[0].split('/');
-      const d = new Date(`${partesData[2]}-${partesData[1]}-${partesData[0]}`);
-      if (d < start || d > end) return;
-
-      const key = e.data.split(',')[0];
-      let valor = e.tipo === 'Saque' ? -e.valor : e.valor;
-      map[key] = (map[key] || 0) + valor;
-      totalFiltrado += valor;
-    });
-
-    const labels = Object.keys(map).sort((a, b) => {
-      const [da, ma, ya] = a.split('/').map(Number);
-      const [db, mb, yb] = b.split('/').map(Number);
-      return new Date(ya, ma - 1, da) - new Date(yb, mb - 1, db);
-    });
-
-    const data = labels.map(l => map[l]);
-
-    if (chart) chart.destroy();
-    chart = new Chart(document.getElementById('graficoVendas').getContext('2d'), {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [{
-          label: `Total por Dia (${tiposSelecionados.join(' + ')})`,
-          data,
-          backgroundColor: data.map(valor => valor >= 0 ? '#3b82f6' : '#ef4444')
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: true },
-          tooltip: {
-            callbacks: {
-              label: function(context) {
-                return formatar(context.parsed.y);
-              }
-            }
-          }
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: {
-              callback: function(value) {
-                return formatar(value);
-              }
-            }
-          }
-        }
-      }
-    });
-
-    document.getElementById('total-filtrado').innerText = `Total no Período: ${formatar(totalFiltrado)}`;
-  }
-
-  function logout() {
-    firebase.auth().signOut().then(() => location.href = 'index.html');
   }
 </script>
 
