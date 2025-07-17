@@ -1,8 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Relatório de Extrato - BANCO FAC</title>
+  <title>Banco - Relatório completo</title>
+    <link rel="icon" href="http://banco.marcone.store/controle/banco.ico" type="image/x-icon">
   <link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@700&family=Arial&display=swap" rel="stylesheet">
   <style>
     * {
@@ -13,45 +15,49 @@
 
     body {
       font-family: 'Arial', sans-serif;
-      background: url('https://i.ibb.co/yFJHFvpN/fundo.jpg') repeat center center;
-      background-color: #f3f4f6;
+      background-color: #1b1b1b;
       color: #1f2937;
       padding: 2rem;
     }
 
     header {
-      background: linear-gradient(90deg, #fb2424, #f91616);
-      border-bottom: 2px solid #7c1212;
-      padding: 1rem 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-
-    header h1 {
-      font-family: 'Amatic SC', cursive;
-      font-size: 2rem;
-      color: #fff;
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+      position: fixed;
+      top: 10px;
+      right: 20px;
+      z-index: 999;
     }
 
     .container {
       max-width: 1200px;
       margin: 2rem auto;
       padding: 0 1rem;
+      text-align: center;
     }
 
     .logo {
       display: block;
-      margin: 0 auto 1rem;
-      width: 100px;
-      border-radius: 8px;
+      margin: 0 auto;
+      width: 200px;
+      height: 110px;
+      border-radius: 12px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .btn-voltar {
+      margin-top: 1rem;
+      margin-bottom: 2rem;
+      padding: 0.75rem 1.5rem;
+      background: #3226dc;
+      color: #fff;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-voltar:hover {
+      background: #1c39b9;
     }
 
     .card {
@@ -60,7 +66,6 @@
       border-bottom-left-radius: 12px;
       padding: 1.5rem;
       box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-      margin-bottom: 2rem;
       position: relative;
       background-image: url('https://www.transparenttextures.com/patterns/checkered-pattern.png');
       background-blend-mode: overlay;
@@ -76,10 +81,10 @@
       height: 10px;
       background: repeating-linear-gradient(
         45deg,
-        #fb2424,
-        #fb2424 10px,
-        #DC2626 10px,
-        #DC2626 20px
+        #2444fb,
+        #2456fb 10px,
+        #2629dc 10px,
+        #2629dc 20px
       );
       border-radius: 12px 12px 0 0;
     }
@@ -95,7 +100,7 @@
 
     .filtros input, .filtros select {
       padding: 0.5rem;
-      border: 1px solid #7c1212;
+      border: 1px solid #12197c;
       border-radius: 8px;
       font-size: 0.875rem;
       background: #fff;
@@ -105,7 +110,7 @@
       padding: 0.75rem;
       border: none;
       border-radius: 8px;
-      background: #DC2626;
+      background: #2675dc;
       color: #fff;
       font-weight: 600;
       font-size: 0.875rem;
@@ -114,7 +119,7 @@
     }
 
     .filtros button:hover {
-      background: #B91C1C;
+      background: #1c1fb9;
     }
 
     table {
@@ -133,7 +138,7 @@
     }
 
     th {
-      background: linear-gradient(90deg, #f91616, #fd3939);
+      background: linear-gradient(90deg, #2516f9, #3c39fd);
       color: #fff;
       font-weight: 600;
     }
@@ -147,21 +152,6 @@
       background-color: rgba(239, 68, 68, 0.1);
       color: #ef4444;
     }
-  footer {
-    position: fixed;
-    bottom: 10px;
-    width: 100%;
-    text-align: center;
-    color: #fff;
-    font-size: 14px;
-    z-index: 2;
-  }
-
-  @media (max-width: 480px) {
-    footer {
-      font-size: 12px;
-    }
-  }
 
     .acoes {
       display: flex;
@@ -174,7 +164,7 @@
       padding: 0.75rem 1.5rem;
       border: none;
       border-radius: 8px;
-      background: #fb2424;
+      background: #777777;
       color: #fff;
       font-weight: 600;
       font-size: 0.875rem;
@@ -184,6 +174,15 @@
 
     .acoes button:hover {
       background: #D97706;
+    }
+
+    footer {
+      position: fixed;
+      bottom: 10px;
+      width: 100%;
+      text-align: center;
+      color: #fff;
+      font-size: 12px;
     }
 
     @media (max-width: 768px) {
@@ -199,11 +198,14 @@
 </head>
 <body>
   <header>
-    <h1>Relatório Bancário - Tropa do CN </h1>
   </header>
 
   <div class="container">
-    
+    <img src="http://banco.marcone.store/controle/logo.png" alt="Logo" class="logo">
+
+<button class="btn-voltar" onclick="window.location.href='https://banco.marcone.store/controle/controle.html'">← Voltar</button>
+
+
     <div class="card">
       <div class="filtros">
         <input type="text" id="filtro-autor" placeholder="Filtrar por responsável" />
@@ -220,16 +222,16 @@
       <table id="tabela-extrato">
         <thead>
           <tr>
-            <th>Data</th>
             <th>Tipo</th>
-            <th>Valor</th>
-            <th>Descrição</th>
+            <th>Item</th>
+            <th>Facção/Descrição</th>
+            <th>Quantidade</th>
             <th>Responsável</th>
+            <th>Data</th>
+            <th>Valor</th>
           </tr>
         </thead>
-        <tbody>
-          <!-- conteúdo será inserido via JavaScript -->
-        </tbody>
+        <tbody></tbody>
       </table>
 
       <div class="acoes">
@@ -238,21 +240,22 @@
       </div>
     </div>
   </div>
+
   <footer>
-    Desenvolvido by Gomes &hearts;
+    Desenvolvido by GomesCN
   </footer>
-  <!-- Firebase -->
+
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
   <script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyCFx7YYsI0jS2tN3sMtOUMRaNHJSIONX6A",
-    authDomain: "bancofac-2aa1d.firebaseapp.com",
-    databaseURL: "https://bancofac-2aa1d-default-rtdb.firebaseio.com/",
-    projectId: "bancofac-2aa1d"
-  };
+    const firebaseConfig = {
+      apiKey: "AIzaSyCFx7YYsI0jS2tN3sMtOUMRaNHJSIONX6A",
+      authDomain: "bancofac-2aa1d.firebaseapp.com",
+      databaseURL: "https://bancofac-2aa1d-default-rtdb.firebaseio.com/",
+      projectId: "bancofac-2aa1d"
+    };
   firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
+    const db = firebase.database();
     let extrato = [];
 
     function carregarExtrato() {
@@ -269,11 +272,13 @@
         const tr = document.createElement("tr");
         tr.className = item.tipo === "Saque" ? "saque" : "deposito";
         tr.innerHTML = `
-          <td>${item.data}</td>
-          <td>${item.tipo}</td>
-          <td>${parseFloat(item.valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
-          <td>${item.descricao}</td>
-          <td>${item.autor}</td>
+          <td>${item.tipo || ""}</td>
+          <td>${item.item || ""}</td>
+          <td>${item.descricao || ""}</td>
+          <td>${item.quantidade || ""}</td>
+          <td>${item.autor || ""}</td>
+          <td>${item.data || ""}</td>
+          <td>${parseFloat(item.valor || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
         `;
         tbody.appendChild(tr);
       });
@@ -295,14 +300,16 @@
     }
 
     function exportarCSV() {
-      let csv = "data;tipo;descrição;valor;responsável\n";
+      let csv = "tipo;item;descrição;quantidade;responsável;data;valor\n";
       extrato.forEach(item => {
-        const data = item.data || "";
         const tipo = item.tipo || "";
+        const itemNome = (item.item || "").replace(/"/g, '""');
         const descricao = (item.descricao || "").replace(/"/g, '""');
-        const valor = parseFloat(item.valor || 0).toFixed(2).replace(".", ",");
+        const quantidade = item.quantidade || "";
         const autor = (item.autor || "").replace(/"/g, '""');
-        csv += `"${data}";"${tipo}";"${descricao}";"${valor}";"${autor}"\n`;
+        const data = item.data || "";
+        const valor = parseFloat(item.valor || 0).toFixed(2).replace(".", ",");
+        csv += `"${tipo}";"${itemNome}";"${descricao}";"${quantidade}";"${autor}";"${data}";"${valor}"\n`;
       });
 
       const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
